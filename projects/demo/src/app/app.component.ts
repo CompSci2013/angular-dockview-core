@@ -1,44 +1,50 @@
-// demo/src/app/app.component.ts
-
-import { Component } from '@angular/core';
-import { SplitviewPanel, CreateComponentOptions } from 'dockview-core';
+// File: projects/demo/src/app/app.component.ts
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import {
+  CreateComponentOptions,
+  IContentRenderer,
+  DockviewApi,
+} from 'dockview-core';
+import { DockviewContainerComponent } from 'angular-dockview';
 
 @Component({
   selector: 'app-root',
   template: `
     <adv-dockview-container
-      [options]="{ className: 'my-splitview' }"
+      [options]="{ className: 'my-dockview' }"
       [createComponent]="panelFactory"
     ></adv-dockview-container>
   `,
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
+  @ViewChild(DockviewContainerComponent, { static: true })
+  private container!: DockviewContainerComponent;
+
   /**
-   * The createComponent callback must:
-   *  - accept CreateComponentOptions { id, name }
-   *  - return a concrete SplitviewPanel with getComponent() implemented
+   * CreateComponent callback for Dockview.
+   * Returns an IContentRenderer with element and init hook.
    */
-  panelFactory = (opts: CreateComponentOptions) => {
-    // Subclass the abstract SplitviewPanel at runtime
-    class AngularSplitviewPanel extends (SplitviewPanel as any) {
-      constructor() {
-        // Use opts.name (not opts.component)
-        super(opts.id, opts.name);
-      }
+  panelFactory = (opts: CreateComponentOptions): IContentRenderer => {
+    const element = document.createElement('div');
+    element.style.width = '100%';
+    element.style.height = '100%';
 
-      /**
-       * Implement the abstract method from BasePanelView:
-       * return the HTMLElement to be inserted for this panel.
-       */
-      getComponent(): HTMLElement {
-        const el = document.createElement('div');
-        el.style.width = '100%';
-        el.style.height = '100%';
-        // You could attach an Angular view here if needed.
-        return el;
-      }
-    }
-
-    return new AngularSplitviewPanel();
+    return {
+      element,
+      init: (_: any) => {
+        // Panel-level initialization (no parameters needed)
+      },
+    };
   };
+
+  ngAfterViewInit(): void {
+    // Add initial panels via the container's exposed API
+    const api: DockviewApi = this.container.api;
+    api.addPanel({ id: 'panel-1', component: 'panel-1', title: 'First Panel' });
+    api.addPanel({
+      id: 'panel-2',
+      component: 'panel-2',
+      title: 'Second Panel',
+    });
+  }
 }
