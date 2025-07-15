@@ -1,4 +1,3 @@
-// File: projects/angular-dockview/src/lib/angular-dockview/dockview-container/dockview-container.component.ts
 import {
   AfterViewInit,
   Component,
@@ -13,9 +12,9 @@ import {
   DockviewComponent,
   DockviewComponentOptions,
   CreateComponentOptions,
-  IContentRenderer,
 } from 'dockview-core';
 import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
+import { DockviewDefaultTabRenderer } from '../dockview-default-tab-renderer';
 
 @Component({
   selector: 'adv-dockview-container',
@@ -32,51 +31,43 @@ import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
   ],
 })
 export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
-  /**
-   * Expose the Dockview API to consumers of this wrapper
-   */
   public get api(): DockviewApi {
     return this.dockview.api;
   }
 
-  /** Optional Dockview configuration options */
   @Input() options?: Partial<DockviewComponentOptions>;
-
-  /** Factory callback for creating panel content */
+  @Input() tabComponentKey = 'default-tab';
   @Input() createComponent!: (options: CreateComponentOptions) => any;
 
   @ViewChild('container', { static: true, read: ElementRef })
   private container!: ElementRef<HTMLDivElement>;
 
-  /** Emits when a panel is added */
   @Output() didAddPanel = new EventEmitter<DockviewApi>();
-  /** Emits when a panel is removed */
   @Output() didRemovePanel = new EventEmitter<DockviewApi>();
 
   private dockview!: DockviewComponent;
   private disposables: Array<{ dispose(): void }> = [];
 
   ngAfterViewInit(): void {
-    // Merge user-provided options with mandatory createComponent factory
     const fullOptions: DockviewComponentOptions = {
       ...((this.options as DockviewComponentOptions) || {}),
-      createComponent: this.createComponent,
+      defaultTabComponent: this.tabComponentKey,
     };
 
-    // Instantiate Dockview
     this.dockview = new DockviewComponent(
       this.container.nativeElement,
       fullOptions
     );
 
-    // Subscribe to panel lifecycle events
+    // ✅ Cast to internal type to access `registerTabComponent`
+    (this.dockview as any).registerTabComponent(
+      this.tabComponentKey,
+      DockviewDefaultTabRenderer
+    );
+
     this.disposables.push(
-      this.dockview.onDidAddPanel(() =>
-        this.didAddPanel.emit(this.dockview.api)
-      ),
-      this.dockview.onDidRemovePanel(() =>
-        this.didRemovePanel.emit(this.dockview.api)
-      )
+      this.api.onDidAddPanel(() => this.didAddPanel.emit(this.api)),
+      this.api.onDidRemovePanel(() => this.didRemovePanel.emit(this.api))
     );
   }
 
