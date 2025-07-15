@@ -1,3 +1,4 @@
+// File: projects/angular-dockview/src/lib/angular-dockview/dockview-container/dockview-container.component.ts
 import {
   AfterViewInit,
   Component,
@@ -12,9 +13,9 @@ import {
   DockviewComponent,
   DockviewComponentOptions,
   CreateComponentOptions,
+  IContentRenderer,
 } from 'dockview-core';
 import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
-import { DockviewDefaultTabRenderer } from '../dockview-default-tab-renderer';
 
 @Component({
   selector: 'adv-dockview-container',
@@ -31,18 +32,31 @@ import { DockviewDefaultTabRenderer } from '../dockview-default-tab-renderer';
   ],
 })
 export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
+  /**
+   * Expose the Dockview API to consumers of this wrapper
+   */
   public get api(): DockviewApi {
     return this.dockview.api;
   }
 
+  /** Optional Dockview configuration options */
   @Input() options?: Partial<DockviewComponentOptions>;
-  @Input() tabComponentKey = 'default-tab';
+
+  /**
+   * The key (string) for the tab renderer to use.
+   * The caller must register the implementation via this.api.registerTabComponent(...)
+   */
+  @Input() tabComponentKey = 'default';
+
+  /** Factory callback for creating panel content */
   @Input() createComponent!: (options: CreateComponentOptions) => any;
 
   @ViewChild('container', { static: true, read: ElementRef })
   private container!: ElementRef<HTMLDivElement>;
 
+  /** Emits when a panel is added */
   @Output() didAddPanel = new EventEmitter<DockviewApi>();
+  /** Emits when a panel is removed */
   @Output() didRemovePanel = new EventEmitter<DockviewApi>();
 
   private dockview!: DockviewComponent;
@@ -59,17 +73,25 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
       fullOptions
     );
 
-    // ✅ Cast to internal type to access `registerTabComponent`
-    (this.dockview as any).registerTabComponent(
-      this.tabComponentKey,
-      DockviewDefaultTabRenderer
-    );
-
     this.disposables.push(
-      this.api.onDidAddPanel(() => this.didAddPanel.emit(this.api)),
-      this.api.onDidRemovePanel(() => this.didRemovePanel.emit(this.api))
+      this.dockview.onDidAddPanel(() =>
+        this.didAddPanel.emit(this.dockview.api)
+      ),
+      this.dockview.onDidRemovePanel(() =>
+        this.didRemovePanel.emit(this.dockview.api)
+      )
     );
   }
+
+  /**
+   * Expose registerPanel for Angular consumers
+   */
+  // registerPanel(
+  //   key: string,
+  //   renderer: (options: CreateComponentOptions) => IContentRenderer
+  // ): void {
+  //   this.dockview.registerPanel(key, renderer);
+  // }
 
   ngOnDestroy(): void {
     this.disposables.forEach((d) => d.dispose());

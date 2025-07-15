@@ -28,6 +28,7 @@ export class AppComponent implements AfterViewInit {
     const element = document.createElement('div');
     element.style.width = '100%';
     element.style.height = '100%';
+    element.innerText = `Hello from ${opts.id}`;
 
     return {
       element,
@@ -38,12 +39,17 @@ export class AppComponent implements AfterViewInit {
   };
 
   ngAfterViewInit(): void {
-    // Add initial panels via the container's exposed API
     const api: DockviewApi = this.container.api;
-    api.addPanel({ id: 'panel-1', component: 'panel-1', title: 'First Panel' });
+
+    api.addPanel({
+      id: 'panel-1',
+      component: 'default', // ← use constant key
+      title: 'First Panel',
+    });
+
     api.addPanel({
       id: 'panel-2',
-      component: 'panel-2',
+      component: 'default',
       title: 'Second Panel',
     });
   }
