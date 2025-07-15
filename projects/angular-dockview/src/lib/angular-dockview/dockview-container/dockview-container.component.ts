@@ -66,6 +66,7 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
     const fullOptions: DockviewComponentOptions = {
       ...((this.options as DockviewComponentOptions) || {}),
       defaultTabComponent: this.tabComponentKey,
+      createComponent: this.createComponent,
     };
 
     this.dockview = new DockviewComponent(
