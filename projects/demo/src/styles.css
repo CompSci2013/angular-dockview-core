@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles for the demo application */
+/* (Dockview CSS is now loaded via angular.json) */
+
+/* Ensure full-height for Dockview container */
+html,
+body,
+app-root,
+adv-dockview-container,
+.dockview-container {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* You can add other custom overrides below */
