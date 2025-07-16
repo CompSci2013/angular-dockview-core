@@ -1,3 +1,4 @@
+// FILE: projects/angular-dockview/src/lib/dockview.types.ts
 import type { IDockviewPanel } from 'dockview-core';
 
 export interface DockviewHeaderAction {
@@ -7,6 +8,9 @@ export interface DockviewHeaderAction {
   label?: string;
   order?: number;
   run: (panel: IDockviewPanel) => void;
+
+  /** Optional override: custom command callback invoked by dockview-core */
+  command?: (panel: any) => void;
 }
 
 export interface DockviewInputValues {

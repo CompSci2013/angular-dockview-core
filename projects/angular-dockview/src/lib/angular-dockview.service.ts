@@ -1,3 +1,4 @@
+// FILE: projects/angular-dockview/src/lib/dockview.service.ts
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { DockviewApi, IDockviewPanel } from 'dockview-core';
@@ -42,13 +43,27 @@ export class AngularDockviewService {
       return existing;
     }
 
+    // Inject popout header button if not explicitly overridden
+    const defaultHeaderActions: DockviewHeaderAction[] = [
+      {
+        id: 'popout',
+        label: 'Popout',
+        icon: '🗗',
+        tooltip: 'Open in Floating Window',
+        command: (panel: any) => {
+          panel.popout?.();
+        },
+        run: () => {}, // run is required by the interface, noop here
+      },
+    ];
+
     const returnable = this._api.addPanel({
       id: opts.id,
       component: opts.component,
       title: opts.title,
       params: {
         inputs: opts.inputs ?? {},
-        headerActions: opts.headerActions ?? [],
+        headerActions: opts.headerActions ?? defaultHeaderActions,
       },
       floating: opts.float ? true : undefined,
     });
