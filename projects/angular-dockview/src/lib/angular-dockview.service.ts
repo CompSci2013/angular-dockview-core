@@ -48,7 +48,7 @@ export class AngularDockviewService {
       {
         id: 'popout',
         label: 'Popout',
-        icon: '🗗',
+        icon: 'codicon codicon-link-external',
         tooltip: 'Open in Floating Window',
         command: (panel: any) => {
           panel.popout?.();

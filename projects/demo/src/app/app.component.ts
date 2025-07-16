@@ -41,16 +41,30 @@ export class AppComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     const api: DockviewApi = this.container.api;
 
+    const popoutAction = {
+      id: 'popout',
+      icon: 'codicon codicon-link-external',
+      tooltip: 'Popout Panel',
+      command: (panel: any) => panel.popout?.(),
+      run: () => {},
+    };
+
     api.addPanel({
       id: 'panel-1',
-      component: 'default', // ← use constant key
+      component: 'default',
       title: 'First Panel',
+      params: {
+        headerActions: [popoutAction],
+      },
     });
 
     api.addPanel({
       id: 'panel-2',
       component: 'default',
       title: 'Second Panel',
+      params: {
+        headerActions: [popoutAction],
+      },
     });
   }
 }
