@@ -1,4 +1,4 @@
-// File: projects/dockview-demo/src/app/app.module.ts
+// File: projects/demo/src/app/app.module.ts
 
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';

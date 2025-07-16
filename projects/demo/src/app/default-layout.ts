@@ -1,4 +1,4 @@
-// File: projects/dockview-demo/src/app/default-layout.ts
+// File: projects/demo/src/app/default-layout.ts
 
 import { DockviewApi } from 'dockview-core';
 

@@ -1,99 +1,88 @@
-// File: projects/angular-dockview/src/lib/angular-dockview/dockview-container/dockview-container.component.ts
+// FILE: projects/angular-dockview/src/lib/angular-dockview/dockview-container/dockview-container.oomponent.ts
 import {
   AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
-  Input,
-  OnDestroy,
   Output,
   ViewChild,
 } from '@angular/core';
-import {
-  DockviewComponent,
-  DockviewComponentOptions,
-  CreateComponentOptions,
-  IContentRenderer,
-} from 'dockview-core';
-import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
+import { DockviewComponent } from 'dockview-core';
+import { IDockviewPanel } from 'dockview-core';
+import { AngularDockviewService } from '../../angular-dockview.service';
+import type { DockviewApi } from 'dockview-core'; // ← add near other imports if not already present
 
 @Component({
   selector: 'adv-dockview-container',
-  template: ` <div #container class="dockview-container"></div> `,
-  styles: [
-    `
-      :host,
-      .dockview-container {
-        display: block;
-        width: 100%;
-        height: 100%;
-      }
-    `,
-  ],
+  templateUrl: './dockview-container.component.html',
+  styleUrls: ['./dockview-container.component.css'],
 })
-export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
-  /** Expose the Dockview API to consumers of this wrapper */
-  public get api(): DockviewApi {
-    return this.dockview.api;
-  }
+export class DockviewContainerComponent implements AfterViewInit {
+  @ViewChild('dockviewHost', { static: true }) hostElement!: ElementRef;
 
-  /** Optional Dockview configuration options */
-  @Input() options?: Partial<DockviewComponentOptions>;
+  @Output() initialized = new EventEmitter<DockviewApi>();
+  @Output() panelFocused = new EventEmitter<string>();
+  @Output() panelClosed = new EventEmitter<string>();
+  @Output() panelAdded = new EventEmitter<string>();
+  @Output() layoutChange = new EventEmitter<void>();
 
-  /** The key (string) for the tab renderer to use */
-  @Input() tabComponentKey = 'default';
+  private component!: DockviewComponent;
 
-  /** Factory callback for creating panel content */
-  @Input() createComponent!: (options: CreateComponentOptions) => any;
-
-  /** Emits when a panel is added */
-  @Output() didAddPanel = new EventEmitter<DockviewApi>();
-
-  /** Emits when a panel is removed */
-  @Output() didRemovePanel = new EventEmitter<DockviewApi>();
-
-  /** Emits when a floating group is resized */
-  @Output() didPopoutGroupSizeChange = new EventEmitter<any>();
-
-  /** Emits when a floating group is moved */
-  @Output() didPopoutGroupPositionChange = new EventEmitter<any>();
-
-  @ViewChild('container', { static: true, read: ElementRef })
-  private container!: ElementRef<HTMLDivElement>;
-
-  private dockview!: DockviewComponent;
-  private disposables: Array<{ dispose(): void }> = [];
+  constructor(private dockview: AngularDockviewService) {}
 
   ngAfterViewInit(): void {
-    const fullOptions: DockviewComponentOptions = {
-      ...((this.options as DockviewComponentOptions) || {}),
-      defaultTabComponent: this.tabComponentKey,
-      createComponent: this.createComponent,
-    };
+    this.component = new DockviewComponent(this.hostElement.nativeElement, {
+      createTabComponent: this.createTabComponent(),
+      createComponent: this.createComponentRenderer(),
+      disableAutoResizing: true,
+    });
 
-    this.dockview = new DockviewComponent(
-      this.container.nativeElement,
-      fullOptions
+    // FIX: Send the DockviewApi instead of DockviewComponent
+    this.dockview.setApi(this.component.api);
+
+    this.component.onDidAddPanel((panel: IDockviewPanel) => {
+      this.panelAdded.emit(panel.id);
+    });
+
+    this.component.onDidRemovePanel((panel: IDockviewPanel) => {
+      this.panelClosed.emit(panel.id);
+    });
+
+    this.component.onDidActivePanelChange(
+      (panel: IDockviewPanel | undefined) => {
+        if (panel) {
+          this.panelFocused.emit(panel.id);
+        }
+      }
     );
 
-    this.disposables.push(
-      this.dockview.onDidAddPanel(() =>
-        this.didAddPanel.emit(this.dockview.api)
-      ),
-      this.dockview.onDidRemovePanel(() =>
-        this.didRemovePanel.emit(this.dockview.api)
-      ),
-      this.dockview.api.onDidPopoutGroupSizeChange((e) =>
-        this.didPopoutGroupSizeChange.emit(e)
-      ),
-      this.dockview.api.onDidPopoutGroupPositionChange((e) =>
-        this.didPopoutGroupPositionChange.emit(e)
-      )
-    );
+    this.component.onDidLayoutChange(() => {
+      this.layoutChange.emit();
+    });
+
+    // ✅ Fix here — emit the DockviewApi
+    this.initialized.emit(this.component.api);
   }
 
-  ngOnDestroy(): void {
-    this.disposables.forEach((d) => d.dispose());
-    this.dockview.dispose();
+  private createTabComponent() {
+    return () => {
+      return {
+        element: document.createElement('div'),
+        init: () => {},
+        update: () => {},
+        dispose: () => {},
+      };
+    };
+  }
+
+  private createComponentRenderer() {
+    return () => {
+      return {
+        element: document.createElement('div'),
+        init: () => {},
+        update: () => {},
+        dispose: () => {},
+      };
+    };
   }
 }

@@ -12,10 +12,10 @@
 </div>
 
 <div class="viewer">
-  <dvw-dockview-container
-    #dockview
+  <adv-dockview-container
+    (initialized)="onReady($event)"
     class="dockview-demo"
-  ></dvw-dockview-container>
+  ></adv-dockview-container>
   <div class="log-panel">
     <button (click)="showEvents = !showEvents">
       {{ showEvents ? "Hide" : "Show" }} Events Log

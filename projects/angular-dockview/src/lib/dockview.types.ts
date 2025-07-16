@@ -42,3 +42,17 @@ export interface DockviewPanel {
 export interface DockviewTabRendererParams {
   title: string;
 }
+
+// export type { DockviewApi } from 'dockview-core';
+
+// File: projects/angular-dockview/src/lib/dockview.types.ts
+
+import type { DockviewApi as BaseDockviewApi } from 'dockview-core';
+
+declare module 'dockview-core' {
+  interface DockviewApi {
+    registerTabRenderer?: (id: string, renderer: any) => void;
+  }
+}
+
+export type DockviewApi = BaseDockviewApi;

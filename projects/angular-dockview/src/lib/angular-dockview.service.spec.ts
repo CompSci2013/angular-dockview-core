@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AngularDockviewService } from './angular-dockview.service';
+import { DockviewServiceService } from './dockview-service.service';
 
-describe('AngularDockviewService', () => {
-  let service: AngularDockviewService;
+describe('DockviewServiceService', () => {
+  let service: DockviewServiceService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AngularDockviewService);
+    service = TestBed.inject(DockviewServiceService);
   });
 
   it('should be created', () => {

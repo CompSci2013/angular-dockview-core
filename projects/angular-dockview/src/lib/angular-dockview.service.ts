@@ -1,4 +1,4 @@
-// FILE: projects/angular-dockview/src/lib/dockview.service.ts
+// FILE: projects/angular-dockview/src/lib/angular-dockview-service.ts
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { DockviewApi, IDockviewPanel } from 'dockview-core';
@@ -15,6 +15,9 @@ export class AngularDockviewService {
     actionId: string;
   }> = new Subject();
 
+  /** Local memory map of panel configurations */
+  private panelConfigs = new Map<string, DockviewPanelConfig>();
+
   /** Called by DockviewContainerComponent after Dockview is available */
   setApi(api: DockviewApi): void {
     this._api = api;
@@ -26,9 +29,25 @@ export class AngularDockviewService {
   }
 
   /* ----------------------------------------------------------------
+   * Panel Config Registry (merged from DockviewService)
+   * ---------------------------------------------------------------- */
+  registerPanelConfig(config: DockviewPanelConfig): void {
+    if (config?.id) {
+      this.panelConfigs.set(config.id, config);
+    }
+  }
+
+  getPanelConfig(id: string): DockviewPanelConfig | undefined {
+    return this.panelConfigs.get(id);
+  }
+
+  clearPanelConfig(id: string): void {
+    this.panelConfigs.delete(id);
+  }
+
+  /* ----------------------------------------------------------------
    * High-level helpers
    * ---------------------------------------------------------------- */
-
   openPanel(opts: DockviewPanelConfig): IDockviewPanel | undefined {
     if (!this._api) {
       return;
@@ -43,7 +62,6 @@ export class AngularDockviewService {
       return existing;
     }
 
-    // Inject popout header button if not explicitly overridden
     const defaultHeaderActions: DockviewHeaderAction[] = [
       {
         id: 'popout',
@@ -67,6 +85,8 @@ export class AngularDockviewService {
       },
       floating: opts.float ? true : undefined,
     });
+
+    this.registerPanelConfig(opts);
     return returnable;
   }
 
@@ -91,6 +111,7 @@ export class AngularDockviewService {
     const p = this._api?.getPanel(id);
     if (p) {
       this._api?.removePanel(p);
+      this.clearPanelConfig(id);
     }
   }
 
@@ -108,11 +129,9 @@ export class AngularDockviewService {
     }
     console.log('found panel');
     console.dir(p);
-    // Prefer modern updateParameters if available
     if (typeof (p as any).updateParameters === 'function') {
       (p as any).updateParameters({ params: { headerActions: actions } });
     } else if (typeof (p as any).setActions === 'function') {
-      // Legacy fallback
       (p as any).setActions(actions);
     }
   }
