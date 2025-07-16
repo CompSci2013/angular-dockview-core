@@ -32,9 +32,7 @@ import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
   ],
 })
 export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
-  /**
-   * Expose the Dockview API to consumers of this wrapper
-   */
+  /** Expose the Dockview API to consumers of this wrapper */
   public get api(): DockviewApi {
     return this.dockview.api;
   }
@@ -42,22 +40,26 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
   /** Optional Dockview configuration options */
   @Input() options?: Partial<DockviewComponentOptions>;
 
-  /**
-   * The key (string) for the tab renderer to use.
-   * The caller must register the implementation via this.api.registerTabComponent(...)
-   */
+  /** The key (string) for the tab renderer to use */
   @Input() tabComponentKey = 'default';
 
   /** Factory callback for creating panel content */
   @Input() createComponent!: (options: CreateComponentOptions) => any;
 
-  @ViewChild('container', { static: true, read: ElementRef })
-  private container!: ElementRef<HTMLDivElement>;
-
   /** Emits when a panel is added */
   @Output() didAddPanel = new EventEmitter<DockviewApi>();
+
   /** Emits when a panel is removed */
   @Output() didRemovePanel = new EventEmitter<DockviewApi>();
+
+  /** Emits when a floating group is resized */
+  @Output() didPopoutGroupSizeChange = new EventEmitter<any>();
+
+  /** Emits when a floating group is moved */
+  @Output() didPopoutGroupPositionChange = new EventEmitter<any>();
+
+  @ViewChild('container', { static: true, read: ElementRef })
+  private container!: ElementRef<HTMLDivElement>;
 
   private dockview!: DockviewComponent;
   private disposables: Array<{ dispose(): void }> = [];
@@ -80,19 +82,15 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
       ),
       this.dockview.onDidRemovePanel(() =>
         this.didRemovePanel.emit(this.dockview.api)
+      ),
+      this.dockview.api.onDidPopoutGroupSizeChange((e) =>
+        this.didPopoutGroupSizeChange.emit(e)
+      ),
+      this.dockview.api.onDidPopoutGroupPositionChange((e) =>
+        this.didPopoutGroupPositionChange.emit(e)
       )
     );
   }
-
-  /**
-   * Expose registerPanel for Angular consumers
-   */
-  // registerPanel(
-  //   key: string,
-  //   renderer: (options: CreateComponentOptions) => IContentRenderer
-  // ): void {
-  //   this.dockview.registerPanel(key, renderer);
-  // }
 
   ngOnDestroy(): void {
     this.disposables.forEach((d) => d.dispose());
