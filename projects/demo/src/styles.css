@@ -1,15 +1,53 @@
-/* Global styles for the demo application */
-/* (Dockview CSS is now loaded via angular.json) */
+/* projects/dockview-demo/src/styles.css */
 
-/* Ensure full-height for Dockview container */
+/* Core demo styles */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+/* Ensure full‐viewport for the app root and host */
 html,
 body,
-app-root,
-adv-dockview-container,
-.dockview-container {
-  height: 100%;
+app-root {
+  height: 90vh;
+  width: 90vw;
   margin: 0;
   padding: 0;
 }
 
-/* You can add other custom overrides below */
+/* Host container full size */
+.demo-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Dockview basic theme overrides */
+.dvw-container {
+  background-color: #f0f0f0;
+}
+
+.dockview-panel {
+  background-color: white;
+  border: 1px solid #ccc;
+}
+
+.dockview-panel-header {
+  background-color: #1976d2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+.dockview-panel-header .dockview-panel-close {
+  font-size: 1.2em;
+  cursor: pointer;
+  color: white;
+}
+
+.dockview-panel-content {
+  padding: 8px;
+}

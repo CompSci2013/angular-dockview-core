@@ -1,16 +1,20 @@
-// File: projects/demo/src/app/app.module.ts
+// File: projects/dockview-demo/src/app/app.module.ts
+
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-// ▶️ NEW: Import local AngularDockview library
-import { AngularDockviewModule } from 'angular-dockview';
 
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+
+// ← Import the wrapper library’s module
+import { AngularDockviewModule } from 'angular-dockview';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
-    AngularDockviewModule, // ▶️ Added the wrapper module here
+    AppRoutingModule,
+    AngularDockviewModule, // ← add here
   ],
   providers: [],
   bootstrap: [AppComponent],
