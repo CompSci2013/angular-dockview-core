@@ -102,8 +102,8 @@
           "options": {
             "main": "projects/demo/src/test.ts",
             "polyfills": "projects/demo/src/polyfills.ts",
-            "tsConfig": "projects/demo/src/tsconfig.spec.json",
-            "karmaConfig": "projects/demo/src/karma.conf.js",
+            "tsConfig": "projects/demo/tsconfig.spec.json",
+            "karmaConfig": "projects/demo/karma.conf.js",
             "assets": [
               "projects/demo/src/favicon.ico",
               "projects/demo/src/assets"

@@ -3,13 +3,11 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "angular-dockview": [
-        "dist/angular-dockview/angular-dockview",
-        "dist/angular-dockview"
-      ],
-      "angular-dockview/*": ["dist/angular-dockview/*"]
+      "angular-dockview": ["projects/angular-dockview/src/public-api.ts"],
+      "angular-dockview/*": ["projects/angular-dockview/*"]
     },
-    "baseUrl": "./",
+
+    "baseUrl": ".",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
