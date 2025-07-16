@@ -1,21 +1,20 @@
 // File: projects/angular-dockview/src/lib/renderers/dockview-default-tab.renderer.ts
+import type { TabPartInitParameters } from 'dockview-core';
 
 export class DockviewDefaultTabRenderer {
   public readonly element: HTMLElement;
-  private _panel: any;
 
   constructor() {
     this.element = document.createElement('div');
     this.element.classList.add('default-tab-renderer');
   }
 
-  init(panel: any, title: string): void {
-    this._panel = panel;
-    this.update(title);
+  init(params: TabPartInitParameters): void {
+    this.updateTitle(params.title);
   }
 
-  update(title?: string): void {
-    this.element.textContent = title ?? this._panel?.title ?? '';
+  updateTitle(title?: string): void {
+    this.element.textContent = title ?? null;
   }
 
   setActions(actions: any[]): void {
@@ -24,6 +23,6 @@ export class DockviewDefaultTabRenderer {
   }
 
   dispose(): void {
-    // No cleanup logic required
+    this.element.remove();
   }
 }

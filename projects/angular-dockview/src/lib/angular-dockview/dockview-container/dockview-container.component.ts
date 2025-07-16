@@ -10,7 +10,9 @@ import {
 import { DockviewComponent } from 'dockview-core';
 import { IDockviewPanel } from 'dockview-core';
 import { AngularDockviewService } from '../../angular-dockview.service';
-import type { DockviewApi } from 'dockview-core'; // ← add near other imports if not already present
+import type { DockviewApi } from 'dockview-core';
+import { DockviewDefaultTabRenderer } from '../../renderers/dockview-default-tab.renderer';
+import type { IContentRenderer, CreateComponentOptions } from 'dockview-core';
 
 @Component({
   selector: 'adv-dockview-container',
@@ -32,12 +34,11 @@ export class DockviewContainerComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.component = new DockviewComponent(this.hostElement.nativeElement, {
-      createTabComponent: this.createTabComponent(),
+      createTabComponent: () => new DockviewDefaultTabRenderer(),
       createComponent: this.createComponentRenderer(),
       disableAutoResizing: true,
     });
 
-    // FIX: Send the DockviewApi instead of DockviewComponent
     this.dockview.setApi(this.component.api);
 
     this.component.onDidAddPanel((panel: IDockviewPanel) => {
@@ -60,29 +61,35 @@ export class DockviewContainerComponent implements AfterViewInit {
       this.layoutChange.emit();
     });
 
-    // ✅ Fix here — emit the DockviewApi
     this.initialized.emit(this.component.api);
   }
 
-  private createTabComponent() {
-    return () => {
-      return {
-        element: document.createElement('div'),
-        init: () => {},
-        update: () => {},
-        dispose: () => {},
-      };
-    };
-  }
+  private createComponentRenderer(): (
+    options: CreateComponentOptions
+  ) => IContentRenderer {
+    return (_options: CreateComponentOptions): IContentRenderer => {
+      const div = document.createElement('div');
+      div.textContent = '🧪 Default Angular Renderer Content';
 
-  private createComponentRenderer() {
-    return () => {
-      return {
-        element: document.createElement('div'),
-        init: () => {},
-        update: () => {},
-        dispose: () => {},
+      const renderer: IContentRenderer = {
+        element: div,
+        init: () => {
+          console.log('[init] called for panel');
+        },
+        update: () => {
+          console.log('[update] called for panel');
+        },
+        dispose: () => {
+          console.log('[dispose] called for panel');
+        },
       };
+
+      // 👇 Augment dynamically with setActions
+      (renderer as any).setActions = (actions: any[]) => {
+        console.log('[setActions] received:', actions);
+      };
+
+      return renderer;
     };
   }
 }
