@@ -71,7 +71,15 @@ export class DockviewContainerComponent implements AfterViewInit {
   ) => IContentRenderer {
     return (_options: CreateComponentOptions): IContentRenderer => {
       const div = document.createElement('div');
+
+      if (this.options?.className) {
+        div.className = this.options.className;
+      } else {
+        div.className = 'dockview-theme-dracula';
+      }
+
       div.textContent = '🧪 Default Angular Renderer Content';
+      console.log('div', div);
 
       const renderer: IContentRenderer = {
         element: div,
