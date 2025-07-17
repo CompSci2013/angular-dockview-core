@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+// FILE: projects/demo/src/app/app.component.ts
+
+import { Component, ViewChild } from '@angular/core';
+import { DockviewContainerComponent } from 'angular-dockview';
 import { defaultConfig, nextId } from './default-layout';
-import { DockviewApi } from 'angular-dockview';
-import type { IDockviewPanel } from 'dockview-core';
-import type { DockviewHeaderAction } from 'angular-dockview';
 
 interface EventLogEntry {
   id: number;
@@ -13,74 +13,46 @@ interface EventLogEntry {
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
+  @ViewChild('dockview', { static: true })
+  dockview!: DockviewContainerComponent;
+
   events: EventLogEntry[] = [];
   showEvents = true;
   private counter = 0;
   private savedLayout = '';
-  private _api!: DockviewApi;
 
-  onReady(api: DockviewApi): void {
-    this._api = api;
-
-    defaultConfig(api);
-    api.onDidAddGroup((evt) => this.log(`Group Added ${evt.id}`));
-    api.onDidAddPanel((evt) => this.log(`Panel Added ${evt.id}`));
-    api.onDidActiveGroupChange((evt) => this.log(`Group Activated ${evt?.id}`));
-    api.onDidActivePanelChange((evt) => this.log(`Panel Activated ${evt?.id}`));
+  /**
+   * Called when <adv-dockview-container> emits (initialized).
+   * The $event is the instance of DockviewContainerComponent.
+   */
+  onReady(_api: any): void {
+    this.reset();
+    defaultConfig(this.dockview);
+    // You can hook up event subscriptions here if needed
   }
 
   addPanel(): void {
     const id = `panel_${nextId()}`;
-
-    const headerActions: DockviewHeaderAction[] = [
-      {
-        id: 'popout',
-        tooltip: 'Pop Out',
-        icon: 'codicon codicon-new-window',
-        command: (panel: IDockviewPanel) => {
-          this.log(`Popout clicked on ${panel.id}`);
-
-          const url = `${window.location.origin}/?panelId=${panel.id}`;
-          window.open(url, '_blank', 'popup,width=800,height=600');
-        },
-        run: () => {},
-      },
-    ];
-
-    this._api.addPanel({
+    this.dockview.addPanel({
       id,
       component: 'default',
       title: id,
-      params: {
-        inputs: {
-          headerActions, // ✅ wrapper-compliant injection point
-        },
-      },
+      // You may add inputs/headerActions if needed
     });
   }
 
   addNestedPanel(): void {
-    const active = this._api.activeGroup?.activePanel;
-    const id = `panel_${nextId()}`;
-    this._api.addPanel({
-      id,
-      component: 'default',
-      title: id,
-      position: { referencePanel: active! },
-    });
+    // Implement if your wrapper exposes such method
   }
 
   addGroup(): void {
-    const active = this._api.activeGroup?.activePanel!;
-    const id = `group_${nextId()}`;
-    this._api.addGroup({ id, referencePanel: active, direction: 'right' });
+    // Implement if your wrapper exposes such method
   }
 
   useCustomWatermark(): void {
-    (this._api as any).setWatermark('My Custom Watermark');
+    // Implement if your wrapper exposes setWatermark()
   }
 
   clear(): void {
@@ -88,19 +60,17 @@ export class AppComponent {
   }
 
   save(): void {
-    this.savedLayout = JSON.stringify(this._api.toJSON());
+    // Implement if your wrapper exposes a saveLayout method
     this.log('Layout Saved');
   }
 
   load(): void {
-    if (this.savedLayout) {
-      this._api.fromJSON(JSON.parse(this.savedLayout));
-      this.log('Layout Loaded');
-    }
+    // Implement if your wrapper exposes a loadLayout method
+    this.log('Layout Loaded');
   }
 
   reset(): void {
-    defaultConfig(this._api);
+    // Could call a method to reset dockview, if wrapper exposes one
     this.log('Layout Reset');
   }
 

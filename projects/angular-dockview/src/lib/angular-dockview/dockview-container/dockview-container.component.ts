@@ -1,4 +1,3 @@
-// FILE: projects/angular-dockview/src/lib/angular-dockview/dockview-container/dockview-container.oomponent.ts
 import {
   AfterViewInit,
   Component,
@@ -66,17 +65,83 @@ export class DockviewContainerComponent implements AfterViewInit {
     this.initialized.emit(this.component.api);
   }
 
+  // === PUBLIC API for demo integration ===
+
+  addPanel(panelConfig: any): void {
+    this.dockview.openPanel(panelConfig);
+  }
+
+  addNestedPanel(): void {
+    // Example: add a panel using the currently active panel as reference
+    const activePanel = this.component.activeGroup?.activePanel;
+    if (activePanel) {
+      const id = `panel_${Date.now()}`;
+      this.dockview.openPanel({
+        id,
+        component: 'default',
+        title: id,
+        position: { referencePanel: activePanel },
+      });
+    }
+  }
+
+  addGroup(): void {
+    // Example: add a new group to the right of the current group
+    const activePanel = this.component.activeGroup?.activePanel;
+    if (activePanel) {
+      const id = `group_${Date.now()}`;
+      this.component.api.addGroup({
+        id,
+        referencePanel: activePanel,
+        direction: 'right',
+      });
+    }
+  }
+
+  setWatermark(watermark: string): void {
+    if ((this.component.api as any).setWatermark) {
+      (this.component.api as any).setWatermark(watermark);
+    }
+  }
+
+  saveLayout(): string {
+    return JSON.stringify(this.component.api.toJSON());
+  }
+
+  loadLayout(layout: string): void {
+    if (layout) {
+      this.component.api.fromJSON(JSON.parse(layout));
+    }
+  }
+
+  reset(): void {
+    // Simple default: remove all panels, then call defaultConfig if you want
+    // You might want to expose a Subject/Callback for more complex logic
+    while (this.component.panels.length > 0) {
+      this.component.api.removePanel(this.component.panels[0]);
+    }
+    // Optionally, you could call your own defaultConfig function here
+  }
+
+  closePanel(panelId: string): void {
+    this.dockview.closePanel(panelId);
+  }
+
+  focusPanel(panelId: string): void {
+    this.dockview.focusPanel(panelId);
+  }
+
+  toggleFloat(panelId: string): void {
+    this.dockview.toggleFloat(panelId);
+  }
+
   private createComponentRenderer(): (
     options: CreateComponentOptions
   ) => IContentRenderer {
     return (_options: CreateComponentOptions): IContentRenderer => {
       const div = document.createElement('div');
 
-      if (this.options?.className) {
-        div.className = this.options.className;
-      } else {
-        div.className = 'dockview-theme-dracula';
-      }
+      // THEME CLASS REMOVED FROM PANEL CONTENT
 
       div.textContent = '🧪 Default Angular Renderer Content';
       console.log('div', div);
@@ -94,7 +159,7 @@ export class DockviewContainerComponent implements AfterViewInit {
         },
       };
 
-      // 👇 Augment dynamically with setActions
+      // Augment dynamically with setActions
       (renderer as any).setActions = (actions: any[]) => {
         console.log('[setActions] received:', actions);
       };

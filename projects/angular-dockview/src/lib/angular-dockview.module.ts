@@ -1,3 +1,4 @@
+// FILE: projects/angulare-dockview/src/lib/angular-dockview.module.ts
 import { NgModule } from '@angular/core';
 import { AngularDockviewComponent } from './angular-dockview.component';
 import { DockviewContainerComponent } from './angular-dockview/dockview-container/dockview-container.component';

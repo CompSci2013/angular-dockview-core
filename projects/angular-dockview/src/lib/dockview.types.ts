@@ -1,4 +1,3 @@
-// FILE: projects/angular-dockview/src/lib/dockview.types.ts
 import type { IDockviewPanel } from 'dockview-core';
 
 export interface DockviewHeaderAction {
@@ -24,6 +23,7 @@ export interface DockviewPanelConfig {
   inputs?: DockviewInputValues;
   float?: boolean;
   headerActions?: DockviewHeaderAction[];
+  position?: any; // <-- Added for Dockview compatibility
 }
 
 /**

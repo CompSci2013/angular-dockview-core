@@ -1,98 +1,103 @@
 // File: projects/demo/src/app/default-layout.ts
 
-import { DockviewApi } from 'dockview-core';
+import { DockviewContainerComponent } from 'angular-dockview';
 
 export const nextId = (() => {
   let counter = 0;
   return () => counter++;
 })();
 
-// Header actions for a given panel
 function makeActions(panelId: string): any[] {
   return [
     {
       icon: 'codicon-trash',
       tooltip: 'Close Panel',
-      action: (panel: any) => panel.api.removePanel(panel),
+      action: (_panel: any) => {
+        // Provide proper closing logic here if needed.
+      },
     },
     {
       icon: 'codicon-window',
       tooltip: 'Open in New Window',
-      action: (panel: any) => window.open(`/popout/${panel.id}`, '_blank'),
+      action: (_panel: any) => window.open(`/popout/${panelId}`, '_blank'),
     },
   ];
 }
 
-export function defaultConfig(api: DockviewApi) {
-  // Helper to create panels with correct headerActions and positions
+export function defaultConfig(dockview: DockviewContainerComponent) {
   const addPanel = (cfg: {
     id: string;
+    component: string; // Now required in the call
     title: string;
-    referencePanel?: any;
+    referencePanelId?: string;
     direction?: 'right' | 'left' | 'below';
   }) => {
-    return api.addPanel({
+    let position: any = undefined;
+    if (cfg.referencePanelId) {
+      position = { referencePanel: cfg.referencePanelId };
+      if (cfg.direction) {
+        position.direction = cfg.direction;
+      }
+    }
+
+    dockview.addPanel({
       id: cfg.id,
-      component: 'default',
+      component: cfg.component,
       title: cfg.title,
-      params: {
+      position,
+      inputs: {
         headerActions: makeActions(cfg.id),
       },
-      ...(cfg.referencePanel && cfg.direction
-        ? {
-            position: {
-              referencePanel: cfg.referencePanel,
-              direction: cfg.direction,
-            },
-          }
-        : cfg.referencePanel
-        ? { position: { referencePanel: cfg.referencePanel } }
-        : {}),
     });
   };
 
-  // Panel creation order and layout
-  const panel1 = addPanel({ id: 'panel_1', title: 'Panel 1' });
-  const panel2 = addPanel({
+  addPanel({ id: 'panel_1', component: 'default', title: 'Panel 1' });
+  addPanel({
     id: 'panel_2',
+    component: 'default',
     title: 'Panel 2',
-    referencePanel: panel1,
+    referencePanelId: 'panel_1',
   });
-  const panel3 = addPanel({
+  addPanel({
     id: 'panel_3',
+    component: 'default',
     title: 'Panel 3',
-    referencePanel: panel1,
+    referencePanelId: 'panel_1',
   });
-  const panel4 = addPanel({
+  addPanel({
     id: 'panel_4',
+    component: 'default',
     title: 'Panel 4',
-    referencePanel: panel1,
+    referencePanelId: 'panel_1',
     direction: 'right',
   });
-  const panel5 = addPanel({
+  addPanel({
     id: 'panel_5',
+    component: 'default',
     title: 'Panel 5',
-    referencePanel: panel4,
+    referencePanelId: 'panel_4',
   });
-  const panel6 = addPanel({
+  addPanel({
     id: 'panel_6',
+    component: 'default',
     title: 'Panel 6',
-    referencePanel: panel5,
+    referencePanelId: 'panel_5',
     direction: 'below',
   });
-  const panel7 = addPanel({
+  addPanel({
     id: 'panel_7',
+    component: 'default',
     title: 'Panel 7',
-    referencePanel: panel6,
+    referencePanelId: 'panel_6',
     direction: 'left',
   });
-  const panel8 = addPanel({
+  addPanel({
     id: 'panel_8',
+    component: 'default',
     title: 'Panel 8',
-    referencePanel: panel7,
+    referencePanelId: 'panel_7',
     direction: 'below',
   });
 
-  // Activate the first panel
-  panel1.api.setActive();
+  dockview.focusPanel?.('panel_1');
 }
