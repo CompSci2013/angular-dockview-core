@@ -8,7 +8,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { DockviewComponent } from 'dockview-core';
+import { DockviewComponent, DockviewComponentOptions } from 'dockview-core';
 import { IDockviewPanel } from 'dockview-core';
 import type { DockviewApi } from 'dockview-core';
 import { DockviewDefaultTabRenderer } from '../../renderers/dockview-default-tab.renderer';
@@ -22,7 +22,7 @@ import { DockviewService } from '../../services/dockview.service';
 export class DockviewContainerComponent implements AfterViewInit {
   @ViewChild('dockviewHost', { static: true }) hostElement!: ElementRef;
 
-  @Input() themeClass: string = 'light';
+  @Input() options?: Partial<DockviewComponentOptions>;
 
   @Output() initialized = new EventEmitter<DockviewApi>();
   @Output() panelFocused = new EventEmitter<string>();
