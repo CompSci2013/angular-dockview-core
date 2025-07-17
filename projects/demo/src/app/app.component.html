@@ -14,7 +14,7 @@
 <div class="viewer">
   <adv-dockview-container
     (initialized)="onReady($event)"
-    class="dockview-demo"
+    [themeClass]="'dockview-theme-light'"
   ></adv-dockview-container>
   <div class="log-panel">
     <button (click)="showEvents = !showEvents">

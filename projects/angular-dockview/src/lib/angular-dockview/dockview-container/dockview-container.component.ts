@@ -2,6 +2,7 @@
 import {
   AfterViewInit,
   Component,
+  Input,
   ElementRef,
   EventEmitter,
   Output,
@@ -9,18 +10,19 @@ import {
 } from '@angular/core';
 import { DockviewComponent } from 'dockview-core';
 import { IDockviewPanel } from 'dockview-core';
-import { AngularDockviewService } from '../../angular-dockview.service';
 import type { DockviewApi } from 'dockview-core';
 import { DockviewDefaultTabRenderer } from '../../renderers/dockview-default-tab.renderer';
 import type { IContentRenderer, CreateComponentOptions } from 'dockview-core';
+import { DockviewService } from '../../services/dockview.service';
 
 @Component({
   selector: 'adv-dockview-container',
   templateUrl: './dockview-container.component.html',
-  styleUrls: ['./dockview-container.component.css'],
 })
 export class DockviewContainerComponent implements AfterViewInit {
   @ViewChild('dockviewHost', { static: true }) hostElement!: ElementRef;
+
+  @Input() themeClass: string = 'light';
 
   @Output() initialized = new EventEmitter<DockviewApi>();
   @Output() panelFocused = new EventEmitter<string>();
@@ -30,7 +32,7 @@ export class DockviewContainerComponent implements AfterViewInit {
 
   private component!: DockviewComponent;
 
-  constructor(private dockview: AngularDockviewService) {}
+  constructor(private dockview: DockviewService) {}
 
   ngAfterViewInit(): void {
     this.component = new DockviewComponent(this.hostElement.nativeElement, {
