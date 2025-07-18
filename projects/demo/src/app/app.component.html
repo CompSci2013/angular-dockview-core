@@ -9,12 +9,13 @@
   <button (click)="reset()">Reset</button>
 </div>
 
-<div class="viewer">
+<div class="dockview-theme-dracula">
   <!-- Reference the dockview container for @ViewChild, NO [options] binding unless the wrapper consumes it -->
   <adv-dockview-container
     #dockview
-    [theme]="'dockview=theme-vs-dark'"
     (initialized)="onReady($event)"
+    class="dockview-theme-dracula"
+    ><div style="width: 100%; height: 100%"></div
   ></adv-dockview-container>
   <div class="log-panel">
     <button (click)="showEvents = !showEvents">

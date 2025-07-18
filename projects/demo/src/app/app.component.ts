@@ -28,7 +28,7 @@ export class AppComponent {
    * The $event is the instance of DockviewContainerComponent.
    */
   onReady(_api: any): void {
-    this.reset();
+    // this.reset();
     defaultConfig(this.dockview);
     // You can hook up event subscriptions here if needed
   }

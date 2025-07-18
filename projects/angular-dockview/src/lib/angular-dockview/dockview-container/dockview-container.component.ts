@@ -1,33 +1,31 @@
 import {
   AfterViewInit,
   Component,
-  Input,
   ElementRef,
   EventEmitter,
+  Input,
   Output,
   ViewChild,
 } from '@angular/core';
 import { DockviewComponent, DockviewComponentOptions } from 'dockview-core';
-import { IDockviewPanel } from 'dockview-core';
-import type { DockviewApi } from 'dockview-core';
-import type { IContentRenderer, CreateComponentOptions } from 'dockview-core';
-
-// --- PATCH: Import services ---
+import type {
+  DockviewApi,
+  CreateComponentOptions,
+  IContentRenderer,
+} from 'dockview-core';
+// Import service files as present in your canonical source
 import { DockviewService } from '../../services/dockview.service';
 import { PanelRegistryService } from '../../services/panel-registry.service';
 import { RendererRegistryService } from '../../services/render-registry.service';
 
-// If you have a default tab renderer class, import it here
-// import { DockviewDefaultTabRenderer } from '../../renderers/dockview-default-tab.renderer';
-
 @Component({
   selector: 'adv-dockview-container',
   templateUrl: './dockview-container.component.html',
+  styleUrls: ['./dockview-container.component.css'],
 })
 export class DockviewContainerComponent implements AfterViewInit {
   @ViewChild('dockviewHost', { static: true }) hostElement!: ElementRef;
 
-  // Only allow switching themes from the host; don't leak options object!
   @Input() theme: string = 'dockview-theme-vs-dark';
 
   @Output() initialized = new EventEmitter<DockviewApi>();
@@ -38,7 +36,6 @@ export class DockviewContainerComponent implements AfterViewInit {
 
   private component!: DockviewComponent;
 
-  // --- PATCH: Inject registry services ---
   constructor(
     private dockview: DockviewService,
     private panelRegistry: PanelRegistryService,
@@ -46,40 +43,24 @@ export class DockviewContainerComponent implements AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    // Apply the theme to the host container
-    if (this.hostElement && this.hostElement.nativeElement) {
-      this.hostElement.nativeElement.className = this.theme;
-    }
-
-    // --- PATCH: Register default panel and renderer keys ---
-    // panelRegistry.register('default', DefaultPanelComponent);
-    // renderRegistry.register('defaultTab', DockviewDefaultTabRenderer);
-
     this.component = new DockviewComponent(this.hostElement.nativeElement, {
-      // Uncomment and configure as you implement Angular panel/tab renderers
-      // createTabComponent: () => new DockviewDefaultTabRenderer(),
+      disableAutoResizing: false,
       createComponent: this.createComponentRenderer(),
-      disableAutoResizing: true,
     });
 
     this.dockview.setApi(this.component.api);
 
-    this.component.onDidAddPanel((panel: IDockviewPanel) => {
+    this.component.onDidAddPanel((panel) => {
       this.panelAdded.emit(panel.id);
     });
-
-    this.component.onDidRemovePanel((panel: IDockviewPanel) => {
+    this.component.onDidRemovePanel((panel) => {
       this.panelClosed.emit(panel.id);
     });
-
-    this.component.onDidActivePanelChange(
-      (panel: IDockviewPanel | undefined) => {
-        if (panel) {
-          this.panelFocused.emit(panel.id);
-        }
+    this.component.onDidActivePanelChange((panel) => {
+      if (panel) {
+        this.panelFocused.emit(panel.id);
       }
-    );
-
+    });
     this.component.onDidLayoutChange(() => {
       this.layoutChange.emit();
     });
@@ -87,11 +68,11 @@ export class DockviewContainerComponent implements AfterViewInit {
     this.initialized.emit(this.component.api);
   }
 
-  addPanel(panelConfig: any): void {
+  public addPanel(panelConfig: any): void {
     this.dockview.openPanel(panelConfig);
   }
 
-  focusPanel(panelId: string): void {
+  public focusPanel(panelId: string): void {
     this.dockview.focusPanel(panelId);
   }
 
@@ -99,26 +80,16 @@ export class DockviewContainerComponent implements AfterViewInit {
     options: CreateComponentOptions
   ) => IContentRenderer {
     return (_options: CreateComponentOptions): IContentRenderer => {
-      // Here, you'd check for an Angular panel registration and delegate.
-      // For now, provide a placeholder:
       const div = document.createElement('div');
       div.textContent = '🧪 Default Angular Renderer Content';
-      const renderer: IContentRenderer = {
+      return {
         element: div,
         init: () => {
           console.log('[init] called for panel');
         },
-        update: () => {
-          console.log('[update] called for panel');
-        },
-        dispose: () => {
-          console.log('[dispose] called for panel');
-        },
+        update: () => {},
+        dispose: () => {},
       };
-      (renderer as any).setActions = (actions: any[]) => {
-        console.log('[setActions] received:', actions);
-      };
-      return renderer;
     };
   }
 }
