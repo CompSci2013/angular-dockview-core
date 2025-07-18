@@ -13,6 +13,7 @@
   <!-- Reference the dockview container for @ViewChild, NO [options] binding unless the wrapper consumes it -->
   <adv-dockview-container
     #dockview
+    [theme]="'dockview=theme-vs-dark'"
     (initialized)="onReady($event)"
   ></adv-dockview-container>
   <div class="log-panel">

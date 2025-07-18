@@ -1,6 +1,2 @@
-<!-- dockview host div required -->
-<div
-  #dockviewHost
-  class="dockview-theme-vs-dark"
-  style="height: 10%; width: 10%"
-></div>
+<!-- Always use the theme input for the outer container! -->
+<div #dockviewHost [class]="theme" style="height: 100%; width: 100%"></div>
