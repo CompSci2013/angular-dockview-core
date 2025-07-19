@@ -11,3 +11,13 @@ adv-dockview-container {
   min-height: 400px; /* for safety during dev */
   width: 100vw;
 }
+
+.viewer,
+adv-dockview-container,
+dv-grid-view,
+dv-dockview,
+.dockview-theme-vs-dark {
+  width: 30% !important;
+  height: 100%;
+  display: block;
+}
