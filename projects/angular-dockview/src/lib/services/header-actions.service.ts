@@ -1,6 +1,7 @@
 // File: header-actions.service.ts
 /* --------------------------------------------------
- * Manages a list of header actions/icons for each panel.
+ * Centralize common panel actions (like "popout") in a single injectable Angular service.
+ * This makes behavior consistent and easier to extend or modify.
  * -----------------------------------------------------*/
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
@@ -8,59 +9,26 @@ import { DockviewHeaderAction } from '../dockview.types'; // Use your wrapper's 
 
 @Injectable({ providedIn: 'root' })
 export class HeaderActionsService {
-  // panelId → array of actions
-  private actions = new Map<string, DockviewHeaderAction[]>();
-  private actions$ = new BehaviorSubject<Map<string, DockviewHeaderAction[]>>(
-    new Map()
-  );
+  private defaultHeaderActions: DockviewHeaderAction[] = [
+    {
+      id: 'popout',
+      label: 'Popout',
+      icon: 'codicon codicon-link-external',
+      tooltip: 'Open in Floating Window',
+      command: (panel: any) => {
+        panel.popout?.();
+      },
+      run: () => {}, // required placeholder
+    },
+  ];
 
-  // Emits when a header action is clicked
-  public readonly headerActionFired = new Subject<{
-    panelId: string;
-    actionId: string;
-  }>();
-
-  /**
-   * Sets the header actions for a panel.
-   */
-  setActions(panelId: string, actions: DockviewHeaderAction[]): void {
-    this.actions.set(panelId, actions);
-    this.emit();
+  getDefaultActions(): DockviewHeaderAction[] {
+    return this.defaultHeaderActions;
   }
 
-  /**
-   * Gets the header actions for a panel.
-   */
-  getActions(panelId: string): DockviewHeaderAction[] {
-    return this.actions.get(panelId) ?? [];
-  }
-
-  /**
-   * Clears header actions for a panel.
-   */
-  clearActions(panelId: string): void {
-    this.actions.delete(panelId);
-    this.emit();
-  }
-
-  /**
-   * Emits an event when a header action is fired/clicked.
-   */
-  fireAction(panelId: string, actionId: string): void {
-    this.headerActionFired.next({ panelId, actionId });
-  }
-
-  /**
-   * Observable of all panel header actions (for tracking changes).
-   */
-  actionsForAllPanels$(): Observable<Map<string, DockviewHeaderAction[]>> {
-    return this.actions$.asObservable();
-  }
-
-  /**
-   * Helper: emits the current state for change detection.
-   */
-  private emit(): void {
-    this.actions$.next(new Map(this.actions));
+  addDefaultAction(action: DockviewHeaderAction): void {
+    if (!this.defaultHeaderActions.find((a) => a.id === action.id)) {
+      this.defaultHeaderActions.push(action);
+    }
   }
 }

@@ -1,6 +1,8 @@
 // File: renderer-registry.service.ts
 
 import { Injectable, Type } from '@angular/core';
+import { DockviewTabRendererComponent } from '../renderers/dockview-tab-renderer.component';
+
 /* ------------------------------------------------------------
  * (optional—if you support dynamic tab/panel/header renderers)
  * ------------------------------------------------------------ */
@@ -9,6 +11,10 @@ import { Injectable, Type } from '@angular/core';
 export class RendererRegistryService {
   private tabRenderers = new Map<string, Type<any>>();
   private panelRenderers = new Map<string, Type<any>>();
+
+  constructor() {
+    this.registerTabRenderer('default', DockviewTabRendererComponent);
+  }
 
   registerTabRenderer(key: string, component: Type<any>): void {
     this.tabRenderers.set(key, component);

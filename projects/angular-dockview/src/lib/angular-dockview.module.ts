@@ -2,13 +2,19 @@
 import { NgModule } from '@angular/core';
 import { AngularDockviewComponent } from './angular-dockview.component';
 import { DockviewContainerComponent } from './angular-dockview/dockview-container/dockview-container.component';
+import { DockviewTabRendererComponent } from './renderers/dockview-tab-renderer.component';
 
 @NgModule({
-  declarations: [AngularDockviewComponent, DockviewContainerComponent],
+  declarations: [
+    AngularDockviewComponent,
+    DockviewContainerComponent,
+    DockviewTabRendererComponent,
+  ],
   imports: [],
   exports: [
     AngularDockviewComponent,
-    DockviewContainerComponent, // ▶️ export the container so <adv-dockview-container> is known
+    DockviewContainerComponent,
+    DockviewTabRendererComponent,
   ],
 })
 export class AngularDockviewModule {}

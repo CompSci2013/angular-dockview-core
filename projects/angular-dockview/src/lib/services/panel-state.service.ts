@@ -63,4 +63,16 @@ export class PanelStateService {
   private emit(): void {
     this.panels$.next(Array.from(this.panels.values()));
   }
+
+  activatePanel(id: string): void {
+    this.updatePanel(id, { active: true });
+  }
+
+  deactivatePanel(id: string): void {
+    this.updatePanel(id, { active: false });
+  }
+
+  setFloating(id: string, floating: boolean): void {
+    this.updatePanel(id, { floating });
+  }
 }

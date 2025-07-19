@@ -11,9 +11,9 @@ import {
 import { DockviewComponent } from 'dockview-core';
 import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
 import { IContentRenderer } from 'dockview-core/dist/cjs/dockview/types';
-
-import { DockviewDefaultTabRenderer } from '../../renderers/dockview-default-tab.renderer';
+import { DockviewService } from '../../services/dockview.service';
 import { RendererRegistryService } from '../../services/render-registry.service';
+export class DockviewDefaultTabRenderer {}
 
 @Component({
   selector: 'adv-dockview-container',
@@ -22,78 +22,28 @@ import { RendererRegistryService } from '../../services/render-registry.service'
 })
 export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('host', { static: true }) hostElementRef!: ElementRef<HTMLElement>;
-
   @Input() theme: string = '';
+  @Output() initialized = new EventEmitter<DockviewApi>();
 
-  @Output() initialized = new EventEmitter<DockviewComponent>();
-  @Output() panelFocused = new EventEmitter<string>();
-  @Output() panelClosed = new EventEmitter<string>();
-  @Output() panelAdded = new EventEmitter<string>();
-  @Output() layoutChange = new EventEmitter<void>();
-
-  private dockviewComponent!: DockviewComponent;
-  private dockviewApi!: DockviewApi;
-
-  constructor(private renderRegistry: RendererRegistryService) {}
+  constructor(private dockviewService: DockviewService) {}
 
   ngAfterViewInit(): void {
-    // Apply the theme class to the host DOM element
-    if (this.theme) {
-      this.hostElementRef.nativeElement.classList.add(this.theme);
-    }
-
-    // Renderer registry based on `component` name
-    const rendererMap: Record<string, () => IContentRenderer> = {
-      default: () => new DockviewDefaultTabRenderer(),
-    };
-
-    this.dockviewComponent = new DockviewComponent(
+    const api = this.dockviewService.initialize(
       this.hostElementRef.nativeElement,
-      {
-        disableAutoResizing: false,
-        floatingGroupBounds: 'boundedWithinViewport',
-        createComponent: (options) => {
-          switch (options.name) {
-            case 'default':
-              return new DockviewDefaultTabRenderer();
-              break;
-            default:
-              console.warn(
-                `No tab renderer registered for component '${options.id}'`
-              );
-              return {
-                element: document.createElement('div'),
-                init: () => {},
-                update: () => {},
-                dispose: () => {},
-              };
-          }
-        },
-      }
+      this.theme
     );
-
-    this.dockviewApi = this.dockviewComponent.api;
-    this.initialized.emit(this.dockviewComponent);
+    this.initialized.emit(api);
   }
 
   ngOnDestroy(): void {
-    this.dockviewComponent?.dispose();
+    this.dockviewService.dispose();
   }
 
   public addPanel(config: any): void {
-    const panel = this.dockviewApi?.addPanel({
-      id: config.id,
-      title: config.title,
-      component: config.component,
-      position: config.position,
-      params: config.inputs || {},
-    });
-    if (panel) {
-      this.panelAdded.emit(panel.id);
-    }
+    this.dockviewService.addPanel(config);
   }
 
   public focusPanel(id: string): void {
-    this.dockviewApi?.getPanel(id)?.focus();
+    this.dockviewService.focusPanel(id);
   }
 }
