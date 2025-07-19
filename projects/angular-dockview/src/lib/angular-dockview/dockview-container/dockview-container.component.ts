@@ -53,11 +53,10 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
         disableAutoResizing: false,
         floatingGroupBounds: 'boundedWithinViewport',
         createComponent: (options) => {
-          console.log(`[createComponent] id = `, options.id);
-          switch (options.id) {
+          switch (options.name) {
             case 'default':
               return new DockviewDefaultTabRenderer();
-
+              break;
             default:
               console.warn(
                 `No tab renderer registered for component '${options.id}'`
@@ -82,13 +81,16 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
   }
 
   public addPanel(config: any): void {
-    this.dockviewApi?.addPanel({
+    const panel = this.dockviewApi?.addPanel({
       id: config.id,
       title: config.title,
       component: config.component,
       position: config.position,
       params: config.inputs || {},
     });
+    if (panel) {
+      this.panelAdded.emit(panel.id);
+    }
   }
 
   public focusPanel(id: string): void {

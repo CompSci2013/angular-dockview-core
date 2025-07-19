@@ -35,13 +35,14 @@ export class AppComponent {
   }
 
   addPanel(): void {
-    const id = `panel_${nextId()}`;
+    const id = nextId();
     this.dockview.addPanel({
-      id,
+      id: `Panel_${id}`,
       component: 'default',
-      title: id,
+      title: `Panel ${id}`,
       // You may add inputs/headerActions if needed
     });
+    this.log(`Add Panel ${id}`);
   }
 
   addNestedPanel(): void {

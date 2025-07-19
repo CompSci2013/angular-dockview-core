@@ -3,7 +3,7 @@
 import { DockviewContainerComponent } from 'angular-dockview';
 
 export const nextId = (() => {
-  let counter = 0;
+  let counter = 9;
   return () => counter++;
 })();
 
