@@ -69,7 +69,6 @@ export function defaultConfig(dockview: DockviewContainerComponent) {
     component: 'default',
     title: 'Panel 4',
     referencePanelId: 'panel_1',
-    direction: 'right',
   });
   addPanel({
     id: 'panel_5',
@@ -95,7 +94,7 @@ export function defaultConfig(dockview: DockviewContainerComponent) {
     id: 'panel_8',
     component: 'default',
     title: 'Panel 8',
-    referencePanelId: 'panel_7',
+    referencePanelId: 'panel_4',
     direction: 'below',
   });
 

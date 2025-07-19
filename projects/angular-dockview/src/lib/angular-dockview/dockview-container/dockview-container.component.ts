@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { DockviewComponent } from 'dockview-core';
 import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
+import { IContentRenderer } from 'dockview-core/dist/cjs/dockview/types';
 
 import { DockviewDefaultTabRenderer } from '../../renderers/dockview-default-tab.renderer';
 import { RendererRegistryService } from '../../services/render-registry.service';
@@ -37,15 +38,37 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     // Apply the theme class to the host DOM element
-    this.hostElementRef.nativeElement.classList.add(this.theme);
+    if (this.theme) {
+      this.hostElementRef.nativeElement.classList.add(this.theme);
+    }
+
+    // Renderer registry based on `component` name
+    const rendererMap: Record<string, () => IContentRenderer> = {
+      default: () => new DockviewDefaultTabRenderer(),
+    };
 
     this.dockviewComponent = new DockviewComponent(
       this.hostElementRef.nativeElement,
       {
         disableAutoResizing: false,
         floatingGroupBounds: 'boundedWithinViewport',
-        createComponent: (_options) => {
-          return new DockviewDefaultTabRenderer();
+        createComponent: (options) => {
+          console.log(`[createComponent] id = `, options.id);
+          switch (options.id) {
+            case 'default':
+              return new DockviewDefaultTabRenderer();
+
+            default:
+              console.warn(
+                `No tab renderer registered for component '${options.id}'`
+              );
+              return {
+                element: document.createElement('div'),
+                init: () => {},
+                update: () => {},
+                dispose: () => {},
+              };
+          }
         },
       }
     );
@@ -59,7 +82,13 @@ export class DockviewContainerComponent implements AfterViewInit, OnDestroy {
   }
 
   public addPanel(config: any): void {
-    this.dockviewApi?.addPanel(config);
+    this.dockviewApi?.addPanel({
+      id: config.id,
+      title: config.title,
+      component: config.component,
+      position: config.position,
+      params: config.inputs || {},
+    });
   }
 
   public focusPanel(id: string): void {

@@ -1,28 +1,36 @@
-// File: projects/angular-dockview/src/lib/renderers/dockview-default-tab.renderer.ts
-import type { TabPartInitParameters } from 'dockview-core';
+import {
+  IContentRenderer,
+  GroupPanelPartInitParameters,
+} from 'dockview-core/dist/cjs/dockview/types';
 
-export class DockviewDefaultTabRenderer {
+export class DockviewDefaultTabRenderer implements IContentRenderer {
   public readonly element: HTMLElement;
+  private titleElement: HTMLElement | null = null;
 
   constructor() {
     this.element = document.createElement('div');
-    this.element.classList.add('default-tab-renderer');
+    this.element.classList.add('dv-tab-title');
+
+    this.titleElement = document.createElement('span');
+    this.titleElement.classList.add('dv-tab-title-text');
+    this.element.appendChild(this.titleElement);
   }
 
-  init(params: TabPartInitParameters): void {
-    this.updateTitle(params.title);
+  init(params: GroupPanelPartInitParameters): void {
+    this.titleElement!.textContent = params.title ?? '';
+
+    const headerActions = params.params?.['headerActions'] ?? [];
+
+    // ✅ Set header buttons using container API
+    params.api.updateParameters({ headerActions });
   }
 
-  updateTitle(title?: string): void {
-    this.element.textContent = title ?? null;
-  }
-
-  setActions(actions: any[]): void {
-    // Stub implementation to satisfy Dockview's expectations
-    // In the future, you can render icons or toolbars here
+  update(): void {
+    // Future state-based updates can go here
   }
 
   dispose(): void {
     this.element.remove();
+    this.titleElement = null;
   }
 }
