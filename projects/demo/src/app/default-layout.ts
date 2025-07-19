@@ -52,51 +52,51 @@ export function defaultConfig(dockview: DockviewContainerComponent) {
   };
 
   addPanel({ id: 'panel_1', component: 'default', title: 'Panel 1' });
-  addPanel({
-    id: 'panel_2',
-    component: 'default',
-    title: 'Panel 2',
-    referencePanelId: 'panel_1',
-  });
-  addPanel({
-    id: 'panel_3',
-    component: 'default',
-    title: 'Panel 3',
-    referencePanelId: 'panel_1',
-  });
-  addPanel({
-    id: 'panel_4',
-    component: 'default',
-    title: 'Panel 4',
-    referencePanelId: 'panel_1',
-  });
-  addPanel({
-    id: 'panel_5',
-    component: 'default',
-    title: 'Panel 5',
-    referencePanelId: 'panel_4',
-  });
-  addPanel({
-    id: 'panel_6',
-    component: 'default',
-    title: 'Panel 6',
-    referencePanelId: 'panel_5',
-    direction: 'below',
-  });
-  addPanel({
-    id: 'panel_7',
-    component: 'default',
-    title: 'Panel 7',
-    referencePanelId: 'panel_6',
-    direction: 'left',
-  });
-  addPanel({
-    id: 'panel_8',
-    component: 'default',
-    title: 'Panel 8',
-    referencePanelId: 'panel_4',
-    direction: 'below',
-  });
+  // addPanel({
+  //   id: 'panel_2',
+  //   component: 'default',
+  //   title: 'Panel 2',
+  //   referencePanelId: 'panel_1',
+  // });
+  // addPanel({
+  //   id: 'panel_3',
+  //   component: 'default',
+  //   title: 'Panel 3',
+  //   referencePanelId: 'panel_1',
+  // });
+  // addPanel({
+  //   id: 'panel_4',
+  //   component: 'default',
+  //   title: 'Panel 4',
+  //   referencePanelId: 'panel_1',
+  // });
+  // addPanel({
+  //   id: 'panel_5',
+  //   component: 'default',
+  //   title: 'Panel 5',
+  //   referencePanelId: 'panel_4',
+  // });
+  // addPanel({
+  //   id: 'panel_6',
+  //   component: 'default',
+  //   title: 'Panel 6',
+  //   referencePanelId: 'panel_5',
+  //   direction: 'below',
+  // });
+  // addPanel({
+  //   id: 'panel_7',
+  //   component: 'default',
+  //   title: 'Panel 7',
+  //   referencePanelId: 'panel_6',
+  //   direction: 'left',
+  // });
+  // addPanel({
+  //   id: 'panel_8',
+  //   component: 'default',
+  //   title: 'Panel 8',
+  //   referencePanelId: 'panel_4',
+  //   direction: 'below',
+  // });
 
   dockview.focusPanel?.('panel_1');
 }

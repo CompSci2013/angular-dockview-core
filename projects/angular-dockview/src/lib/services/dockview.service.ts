@@ -31,41 +31,60 @@ export class DockviewService {
     this.dockviewComponent = new DockviewComponent(container, {
       disableAutoResizing: false,
       floatingGroupBounds: 'boundedWithinViewport',
+      // UPDATED: createComponent block now injects header actions via Dockview's API with debug logging
       createComponent: (options) => {
-        const RendererComponent = this.rendererRegistry.getTabRenderer(
+        console.log(
+          '[DockviewService] createComponent called for:',
           options.name
         );
-
-        if (!RendererComponent) {
-          console.warn(`No renderer found for ${options.name}`);
-          return {
-            element: document.createElement('div'),
-            init: () => {},
-            update: () => {},
-            dispose: () => {},
-          };
-        }
-
-        // Use Angular 13+ dynamic creation API
-        const container = document.createElement('div');
-
-        const refHost = document.createElement('div');
-        container.appendChild(refHost);
-
-        const componentRef = new RendererComponent();
-        const element = document.createElement('div');
-        container.appendChild(element);
-
-        // We'll manually wire this in after we support container injection or embed into real Angular view trees
         return {
-          element: container,
+          element: document.createElement('div'),
           init: (params) => {
-            componentRef.title = params.title ?? '';
-            componentRef.headerActions = params.params?.['headerActions'] ?? [];
+            const panelId = params.api?.id ?? '[unknonw]';
+            console.log(
+              `[DockviewService] init called for panelId: ${panelId}`
+            );
 
-            componentRef.actionClicked?.subscribe((action: any) => {
-              action.command?.(params.api);
-            });
+            // Define Popout and Close actions for Dockview to inject
+            const headerActions = [
+              {
+                id: 'popout',
+                label: 'Popout',
+                icon: 'codicon codicon-browser',
+                tooltip: 'Open in Floating Window',
+                command: (panelApi: any) => {
+                  console.log(
+                    `[DockviewService] Popout clicked for panelId: ${panelId}`
+                  );
+                  panelApi.popout?.();
+                },
+                run: () => {},
+              },
+              {
+                id: 'close',
+                label: 'Close',
+                icon: 'codicon codicon-close',
+                tooltip: 'Close Panel',
+                command: (panelApi: any) => {
+                  console.log(
+                    `[DockviewService] Close clicked for panelId: ${panelId}`
+                  );
+                  this.dockviewApi.removePanel(panelApi);
+                },
+                run: () => {},
+              },
+            ];
+
+            console.log(
+              `[DockviewService] Injecting headerActions for panelId: ${panelId}`,
+              headerActions
+            );
+
+            // Apply the actions via Dockview's API
+            params.api.updateParameters({ headerActions });
+
+            // Persist them in state for access later
+            this.panelStateService.setPanelActions(panelId, headerActions);
           },
           update: () => {},
           dispose: () => {},
@@ -82,6 +101,35 @@ export class DockviewService {
   }
 
   addPanel(config: any): void {
+    const headerActions = [
+      {
+        id: 'popout',
+        label: 'Popout',
+        icon: 'codicon codicon-browser',
+        tooltip: 'Open in Floating Window',
+        command: (panelApi: any) => {
+          console.log(
+            `[DockviewService] Popout clicked for panelId: ${config.id}`
+          );
+          panelApi.popout?.();
+        },
+        run: () => {},
+      },
+      {
+        id: 'close',
+        label: 'Close',
+        icon: 'codicon codicon-close',
+        tooltip: 'Close Panel',
+        command: (panelApi: any) => {
+          console.log(
+            `[DockviewService] Close clicked for panelId: ${config.id}`
+          );
+          this.dockviewApi.removePanel(panelApi);
+        },
+        run: () => {},
+      },
+    ];
+
     const panel = this.dockviewApi.addPanel({
       id: config.id,
       title: config.title,
@@ -89,8 +137,7 @@ export class DockviewService {
       position: config.position,
       params: {
         ...(config.inputs || {}),
-        headerActions:
-          config.headerActions ?? this.headerActionsService.getDefaultActions(),
+        headerActions,
       },
     });
 
@@ -99,6 +146,7 @@ export class DockviewService {
       title: config.title,
       active: true,
       floating: false,
+      headerActions,
     };
 
     this.panelStateService.addPanel(state);
