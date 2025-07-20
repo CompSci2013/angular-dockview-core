@@ -1,16 +1,5 @@
 import type { IDockviewPanel } from 'dockview-core';
-
-export interface DockviewHeaderAction {
-  id: string;
-  tooltip?: string;
-  icon?: string; // e.g., 'codicon codicon-new-window'
-  label?: string;
-  order?: number;
-  run: (panel: IDockviewPanel) => void;
-
-  /** Optional override: custom command callback invoked by dockview-core */
-  command?: (panel: any) => void;
-}
+import type { HeaderAction } from './services/header-actions.service';
 
 export interface DockviewInputValues {
   [key: string]: any;
@@ -22,7 +11,7 @@ export interface DockviewPanelConfig {
   component: string;
   inputs?: DockviewInputValues;
   float?: boolean;
-  headerActions?: DockviewHeaderAction[];
+  headerActions?: HeaderAction[];
   position?: any; // <-- Added for Dockview compatibility
 }
 

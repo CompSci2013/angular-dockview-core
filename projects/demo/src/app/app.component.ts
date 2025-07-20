@@ -8,6 +8,7 @@ import {
 import { defaultConfig, nextId } from './default-layout';
 import { PanelOneComponent } from './panels/panel-one.component';
 import { PanelTwoComponent } from './panels/panel-two.component';
+import { DefaultPanelComponent } from './panels/default-panel.component';
 
 interface EventLogEntry {
   id: number;
@@ -31,6 +32,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.rendererRegistry.registerPanelRenderer(
+      'default',
+      DefaultPanelComponent
+    );
+    this.rendererRegistry.registerPanelRenderer(
       'panelOneComponent',
       PanelOneComponent
     );
@@ -47,15 +52,32 @@ export class AppComponent implements OnInit {
    * The $event is the instance of DockviewContainerComponent.
    */
   onReady(_api: any): void {
-    // this.reset();
     defaultConfig(this.dockview);
-    // You can hook up event subscriptions here if needed
+
+    // Explicitly add richer panels with Angular content
+    this.dockview.addPanel({
+      id: 'rich_panel_1',
+      component: 'panelOneComponent',
+      title: 'Rich Panel One',
+      inputs: {
+        headerActions: [], // Adjust as needed later
+      },
+    });
+
+    this.dockview.addPanel({
+      id: 'rich_panel_2',
+      component: 'panelTwoComponent',
+      title: 'Rich Panel Two',
+      inputs: {
+        headerActions: [], // Adjust as needed later
+      },
+    });
   }
 
   addPanel(): void {
     const id = nextId();
     this.dockview.addPanel({
-      id: `Panel_${id}`,
+      id,
       component: 'default',
       title: `Panel ${id}`,
       // You may add inputs/headerActions if needed

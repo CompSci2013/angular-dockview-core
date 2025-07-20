@@ -7,6 +7,13 @@ import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
+export interface LogEvent {
+  type: 'log';
+  message: string;
+  timestamp?: string;
+  source?: string; // Panel ID or other source
+}
+
 // Define event types
 export type DockviewEvent =
   | { type: 'panelClosed'; panelId: string }
@@ -14,7 +21,8 @@ export type DockviewEvent =
   | { type: 'panelAdded'; panelId: string }
   | { type: 'headerActionClicked'; panelId: string; actionId: string }
   | { type: 'floatingStateChanged'; panelId: string; floating: boolean }
-  | { type: 'message'; toPanelId: string; message: string };
+  | { type: 'message'; toPanelId: string; message: string }
+  | { type: 'log'; message: string; timestamp?: string; source?: string };
 
 @Injectable({ providedIn: 'root' })
 export class EventBusService {

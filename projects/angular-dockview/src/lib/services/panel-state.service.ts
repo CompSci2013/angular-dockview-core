@@ -4,14 +4,15 @@
  * -------------------------------------------------------------------- */
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { DockviewHeaderAction } from '../dockview.types';
+// import { DockviewHeaderAction } from '../dockview.types';
+import { HeaderAction } from './header-actions.service';
 
 export interface PanelState {
   id: string;
   title: string;
   active: boolean;
   floating: boolean;
-  headerActions?: DockviewHeaderAction[]; // ← Add this line
+  headerActions?: HeaderAction[]; // ← Add this line
 }
 
 @Injectable({ providedIn: 'root' })
@@ -58,7 +59,7 @@ export class PanelStateService {
     return this.panels.get(id);
   }
 
-  setPanelActions(panelId: string, actions: DockviewHeaderAction[]): void {
+  setPanelActions(panelId: string, actions: HeaderAction[]): void {
     const panel = this.panels.get(panelId);
     if (panel) {
       panel.headerActions = actions;
@@ -66,7 +67,7 @@ export class PanelStateService {
     }
   }
 
-  getPanelActions(panelId: string): DockviewHeaderAction[] {
+  getPanelActions(panelId: string): HeaderAction[] {
     return this.panels.get(panelId)?.headerActions ?? [];
   }
 

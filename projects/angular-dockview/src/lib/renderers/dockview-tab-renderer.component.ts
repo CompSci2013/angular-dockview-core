@@ -5,7 +5,7 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { DockviewHeaderAction } from '../dockview.types';
+import { HeaderAction } from '../services/header-actions.service';
 
 @Component({
   selector: 'adv-tab-renderer',
@@ -42,11 +42,11 @@ import { DockviewHeaderAction } from '../dockview.types';
 })
 export class DockviewTabRendererComponent {
   @Input() title!: string;
-  @Input() headerActions: DockviewHeaderAction[] = [];
+  @Input() headerActions: HeaderAction[] = [];
 
-  @Output() actionClicked = new EventEmitter<DockviewHeaderAction>();
+  @Output() actionClicked = new EventEmitter<HeaderAction>();
 
-  onActionClick(action: DockviewHeaderAction): void {
+  onActionClick(action: HeaderAction): void {
     this.actionClicked.emit(action);
   }
 }
