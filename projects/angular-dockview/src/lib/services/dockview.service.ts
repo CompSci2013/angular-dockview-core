@@ -169,12 +169,33 @@ export class DockviewService {
           const dockviewApi = this.dockviewApi;
           const panelId = panelApi.id;
 
-          dockviewApi.addFloatingGroup(panelApi.group, {
-            width: 600,
-            height: 400,
-            x: 200,
-            y: 200,
+          const newGroup = dockviewApi.addGroup({
+            referencePanel: panelApi.id,
+            direction: 'right',
           });
+          panelApi.moveTo({ group: newGroup });
+
+          dockviewApi
+            .addPopoutGroup(newGroup, {
+              position: {
+                width: 800,
+                height: 600,
+                left: 100,
+                top: 100,
+              },
+              popoutUrl: '/popout.html',
+              onDidOpen: ({ id, window }) => {},
+              onWillClose: ({ id, window }) => {},
+            })
+            .then((success) => {
+              if (success) {
+                console.log('Pop!');
+              } else {
+                console.error(
+                  `Failed to open popout window for panel ${panelId}.`
+                );
+              }
+            });
           console.log(`Panel ${panelApi.id} popped out successfully.`);
         },
         run: () => {},
