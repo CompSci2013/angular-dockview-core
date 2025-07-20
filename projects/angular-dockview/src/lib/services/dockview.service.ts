@@ -2,7 +2,12 @@
  *  It makes future testing, state syncing, and extensions (e.g. event dispatching) much easier.
  * */
 
-import { Injectable } from '@angular/core';
+import {
+  Injectable,
+  ApplicationRef,
+  EmbeddedViewRef,
+  ComponentRef,
+} from '@angular/core';
 import { DockviewComponent } from 'dockview-core';
 import { IContentRenderer } from 'dockview-core/dist/cjs/dockview/types';
 import { PanelStateService, PanelState } from './panel-state.service';
@@ -39,31 +44,65 @@ export class DockviewService {
       disableAutoResizing: false,
       floatingGroupBounds: 'boundedWithinViewport',
       // UPDATED: createComponent block now injects header actions via Dockview's API with debug logging
-      createComponent: (options) => {
+
+      // Existing imports remain unchanged
+
+      createComponent: (options: CreateComponentOptions) => {
         console.log(
           '[DockviewService] createComponent called for:',
           options.name
         );
+
+        const componentType = this.rendererRegistry.getPanelRenderer(
+          options.name
+        );
+        let compnentRef: ComponentRef<any> | null = null;
+        if (!componentType) {
+          console.error(`No renderer found for ${options.name}`);
+          return {
+            element: document.createElement('div'),
+            init: () => {},
+            dispose: () => {},
+          };
+        }
+
+        const componentRef: ComponentRef<any> = this.injector
+          .get(ApplicationRef)
+          .bootstrap(componentType);
+
+        const panelElement = (componentRef.hostView as EmbeddedViewRef<any>)
+          .rootNodes[0];
+
         return {
-          element: document.createElement('div'),
-          init: (params) => {
-            const panelId = params.api?.id ?? '[unknonw]';
+          element: panelElement,
+
+          init: (params: { api: DockviewPanelApi; params?: any }) => {
+            const panelId = params.api?.id ?? '[unknown]';
             console.log(
               `[DockviewService] init called for panelId: ${panelId}`
             );
 
-            // Define Popout and Close actions for Dockview to inject
+            // Your existing Popout and Close button logic clearly preserved:
             const headerActions = [
               {
                 id: 'popout',
                 label: 'Popout',
                 icon: 'codicon codicon-browser',
                 tooltip: 'Open in Floating Window',
-                command: (panelApi: any) => {
+                command: (panelApi: DockviewPanelApi) => {
                   console.log(
                     `[DockviewService] Popout clicked for panelId: ${panelId}`
                   );
-                  panelApi.popout?.();
+                  const dockviewApi = this.dockviewApi;
+                  const newGroup = dockviewApi.addGroup({
+                    referencePanel: panelApi.id,
+                    direction: 'right',
+                  });
+                  panelApi.moveTo({ group: newGroup });
+                  dockviewApi.addPopoutGroup(newGroup, {
+                    position: { width: 800, height: 600, left: 100, top: 100 },
+                    popoutUrl: '/assets/popout.html',
+                  });
                 },
                 run: () => {},
               },
@@ -72,29 +111,28 @@ export class DockviewService {
                 label: 'Close',
                 icon: 'codicon codicon-close',
                 tooltip: 'Close Panel',
-                command: (panelApi: any) => {
-                  console.log(
-                    `[DockviewService] Close clicked for panelId: ${panelId}`
-                  );
-                  this.dockviewApi.removePanel(panelApi);
+                command: (panelApi: DockviewPanelApi) => {
+                  const panel = this.dockviewApi.getPanel(panelApi.id);
+                  if (panel) {
+                    this.dockviewApi.removePanel(panel);
+                  }
                 },
                 run: () => {},
               },
             ];
 
-            console.log(
-              `[DockviewService] Injecting headerActions for panelId: ${panelId}`,
-              headerActions
-            );
-
-            // Apply the actions via Dockview's API
             params.api.updateParameters({ headerActions });
-
-            // Persist them in state for access later
             this.panelStateService.setPanelActions(panelId, headerActions);
+
+            // Pass panel params directly as inputs to your Angular component
+            if (params.params) {
+              Object.assign(componentRef.instance, params.params);
+            }
           },
-          update: () => {},
-          dispose: () => {},
+
+          dispose: () => {
+            componentRef.destroy();
+          },
         };
       },
 
