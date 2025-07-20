@@ -3,7 +3,7 @@
 import { DockviewContainerComponent } from 'angular-dockview';
 
 export const nextId = (() => {
-  let counter = 9;
+  let counter = 3;
   return () => counter++;
 })();
 
@@ -52,12 +52,12 @@ export function defaultConfig(dockview: DockviewContainerComponent) {
   };
 
   addPanel({ id: 'panel_1', component: 'default', title: 'Panel 1' });
-  // addPanel({
-  //   id: 'panel_2',
-  //   component: 'default',
-  //   title: 'Panel 2',
-  //   referencePanelId: 'panel_1',
-  // });
+  addPanel({
+    id: 'panel_2',
+    component: 'default',
+    title: 'Panel 2',
+    referencePanelId: 'panel_1',
+  });
   // addPanel({
   //   id: 'panel_3',
   //   component: 'default',

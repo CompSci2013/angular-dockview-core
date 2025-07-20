@@ -58,7 +58,8 @@
             "tsConfig": "projects/demo/tsconfig.app.json",
             "assets": [
               "projects/demo/src/favicon.ico",
-              "projects/demo/src/assets"
+              "projects/demo/src/assets",
+              "projects/demo/src/popout.html"
             ],
             "styles": [
               "node_modules/@vscode/codicons/dist/codicon.css",

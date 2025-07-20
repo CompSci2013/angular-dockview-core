@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  padding: 8px;
+  color: #ffffff; /* white text on dark bg */
+}
+
+.dockview-header-actions {
+  opacity: 1 !important; /* always show */
+}

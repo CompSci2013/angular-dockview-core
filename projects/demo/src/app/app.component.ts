@@ -1,8 +1,13 @@
 // FILE: projects/demo/src/app/app.component.ts
 
-import { Component, ViewChild } from '@angular/core';
-import { DockviewContainerComponent } from 'angular-dockview';
+import { Component, ViewChild, OnInit } from '@angular/core';
+import {
+  DockviewContainerComponent,
+  RendererRegistryService,
+} from 'angular-dockview';
 import { defaultConfig, nextId } from './default-layout';
+import { PanelOneComponent } from './panels/panel-one.component';
+import { PanelTwoComponent } from './panels/panel-two.component';
 
 interface EventLogEntry {
   id: number;
@@ -15,7 +20,7 @@ interface EventLogEntry {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   @ViewChild('dockview', { static: true })
   dockview!: DockviewContainerComponent;
 
@@ -23,6 +28,19 @@ export class AppComponent {
   showEvents = true;
   private counter = 0;
   private savedLayout = '';
+
+  ngOnInit(): void {
+    this.rendererRegistry.registerPanelRenderer(
+      'panelOneComponent',
+      PanelOneComponent
+    );
+    this.rendererRegistry.registerPanelRenderer(
+      'panelTwoComponent',
+      PanelTwoComponent
+    );
+  }
+
+  constructor(private rendererRegistry: RendererRegistryService) {}
 
   /**
    * Called when <adv-dockview-container> emits (initialized).

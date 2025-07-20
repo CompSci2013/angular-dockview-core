@@ -13,7 +13,8 @@ export type DockviewEvent =
   | { type: 'panelFocused'; panelId: string }
   | { type: 'panelAdded'; panelId: string }
   | { type: 'headerActionClicked'; panelId: string; actionId: string }
-  | { type: 'floatingStateChanged'; panelId: string; floating: boolean };
+  | { type: 'floatingStateChanged'; panelId: string; floating: boolean }
+  | { type: 'message'; toPanelId: string; message: string };
 
 @Injectable({ providedIn: 'root' })
 export class EventBusService {
