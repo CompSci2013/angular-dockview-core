@@ -16,6 +16,7 @@ import {
   DockviewPanelApi,
   DockviewApi,
 } from 'dockview-core';
+import { group } from 'console';
 
 @Injectable({ providedIn: 'root' })
 export class DockviewService {
@@ -164,11 +165,17 @@ export class DockviewService {
         label: 'Popout',
         icon: 'codicon codicon-browser',
         tooltip: 'Open in Floating Window',
-        command: (panelApi: any) => {
-          console.log(
-            `[DockviewService] Popout clicked for panelId: ${config.id}`
-          );
-          panelApi.popout?.();
+        command: (panelApi: DockviewPanelApi) => {
+          const dockviewApi = this.dockviewApi;
+          const panelId = panelApi.id;
+
+          dockviewApi.addFloatingGroup(panelApi.group, {
+            width: 600,
+            height: 400,
+            x: 200,
+            y: 200,
+          });
+          console.log(`Panel ${panelApi.id} popped out successfully.`);
         },
         run: () => {},
       },
