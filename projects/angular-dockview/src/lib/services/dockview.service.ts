@@ -4,12 +4,18 @@
 
 import { Injectable } from '@angular/core';
 import { DockviewComponent } from 'dockview-core';
-import { DockviewApi } from 'dockview-core/dist/cjs/api/component.api';
 import { IContentRenderer } from 'dockview-core/dist/cjs/dockview/types';
 import { PanelStateService, PanelState } from './panel-state.service';
 import { HeaderActionsService } from './header-actions.service';
 import { RendererRegistryService } from './render-registry.service';
 import { Injector } from '@angular/core';
+import {
+  CreateComponentOptions,
+  ITabRenderer,
+  TabPartInitParameters,
+  DockviewPanelApi,
+  DockviewApi,
+} from 'dockview-core';
 
 @Injectable({ providedIn: 'root' })
 export class DockviewService {
@@ -90,6 +96,57 @@ export class DockviewService {
           dispose: () => {},
         };
       },
+
+      createTabComponent: (options: CreateComponentOptions): ITabRenderer => {
+        const element = document.createElement('div');
+        element.classList.add('custom-tab');
+
+        let actionsContainer: HTMLElement;
+        let titleSpan: HTMLElement;
+
+        return {
+          element,
+
+          init: (parameters: TabPartInitParameters): void => {
+            titleSpan = document.createElement('span');
+            titleSpan.textContent = parameters.title || options.id;
+            titleSpan.classList.add('custom-tab-title');
+            element.appendChild(titleSpan);
+
+            actionsContainer = document.createElement('div');
+            actionsContainer.classList.add('custom-tab-actions');
+            element.appendChild(actionsContainer);
+
+            const renderActions = (actions: Array<any>) => {
+              actionsContainer.innerHTML = '';
+              actions.forEach((action) => {
+                const button = document.createElement('button');
+                button.className = `dockview-tab-action ${action.icon}`;
+                button.title = action.tooltip;
+                button.onclick = (e) => {
+                  e.stopPropagation();
+                  action.command(parameters.api);
+                };
+                actionsContainer.appendChild(button);
+              });
+            };
+
+            parameters.api.onDidParametersChange((event) => {
+              const actions = event['params']?.['headerActions'] || [];
+
+              renderActions(actions);
+            });
+
+            // Initial rendering of headerActions
+            const initialActions = parameters.params?.['headerActions'] || [];
+            renderActions(initialActions);
+          },
+
+          dispose: () => {
+            element.remove();
+          },
+        };
+      },
     });
 
     this.dockviewApi = this.dockviewComponent.api;
@@ -135,6 +192,7 @@ export class DockviewService {
       title: config.title,
       component: config.component,
       position: config.position,
+      tabComponent: 'default',
       params: {
         ...(config.inputs || {}),
         headerActions,
