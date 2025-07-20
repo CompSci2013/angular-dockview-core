@@ -44,6 +44,9 @@ export class HeaderActionsService {
       icon: 'codicon codicon-close',
       tooltip: 'Close Panel',
       command: (panelApi: DockviewPanelApi, dockviewApi?: DockviewApi) => {
+        if (!dockviewApi) {
+          return;
+        }
         const panel = dockviewApi?.getPanel(panelApi.id);
         if (panel) {
           dockviewApi?.removePanel(panel);

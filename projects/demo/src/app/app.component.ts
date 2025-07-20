@@ -9,6 +9,7 @@ import { defaultConfig, nextId } from './default-layout';
 import { PanelOneComponent } from './panels/panel-one.component';
 import { PanelTwoComponent } from './panels/panel-two.component';
 import { DefaultPanelComponent } from './panels/default-panel.component';
+import { EventBusService, HeaderActionsService } from 'angular-dockview';
 
 interface EventLogEntry {
   id: number;
@@ -43,9 +44,35 @@ export class AppComponent implements OnInit {
       'panelTwoComponent',
       PanelTwoComponent
     );
+
+    // Example: Add extra actions for a specific panel
+    const defaultActions =
+      this.headerActionsService.getActions('panelOneComponent');
+
+    this.headerActionsService.registerActions('panelOneComponent', [
+      ...defaultActions,
+      {
+        id: 'notify',
+        label: 'Notify',
+        icon: 'codicon codicon-bell',
+        tooltip: 'Notify something',
+        command: (panelApi) => {
+          this.eventBus.emit({
+            type: 'log',
+            message: `Notify clicked on ${panelApi.id}`,
+            source: panelApi.id,
+            timestamp: new Date().toLocaleTimeString(),
+          });
+        },
+      },
+    ]);
   }
 
-  constructor(private rendererRegistry: RendererRegistryService) {}
+  constructor(
+    private rendererRegistry: RendererRegistryService,
+    private headerActionsService: HeaderActionsService,
+    private eventBus: EventBusService
+  ) {}
 
   /**
    * Called when <adv-dockview-container> emits (initialized).
