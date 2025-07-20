@@ -15,6 +15,7 @@ import { IContentRenderer } from 'dockview-core/dist/cjs/dockview/types';
 import { PanelStateService, PanelState } from './panel-state.service';
 import { HeaderActionsService, HeaderAction } from './header-actions.service';
 import { RendererRegistryService } from './render-registry.service';
+import { IDockviewPanel } from 'dockview-core';
 import { Injector } from '@angular/core';
 import {
   CreateComponentOptions,
@@ -23,6 +24,7 @@ import {
   DockviewPanelApi,
   DockviewApi,
 } from 'dockview-core';
+import { EventBusService } from './event-bus-service';
 import { group } from 'console';
 
 @Injectable({ providedIn: 'root' })
@@ -35,7 +37,8 @@ export class DockviewService {
     private headerActionsService: HeaderActionsService,
     private rendererRegistry: RendererRegistryService,
     private injector: Injector,
-    private componentFactoryResolver: ComponentFactoryResolver
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private eventBus: EventBusService
   ) {}
 
   initialize(container: HTMLElement, theme: string): DockviewApi {
@@ -94,7 +97,7 @@ export class DockviewService {
                 label: 'Popout',
                 icon: 'codicon codicon-browser',
                 tooltip: 'Open in Floating Window',
-                command: (panelApi: DockviewPanelApi) => {
+                command: (panelApi: IDockviewPanel) => {
                   console.log(
                     `[DockviewService] Popout clicked for panelId: ${panelId}`
                   );
@@ -103,7 +106,7 @@ export class DockviewService {
                     referencePanel: panelApi.id,
                     direction: 'right',
                   });
-                  panelApi.moveTo({ group: newGroup });
+                  (panelApi as any).moveTo({ group: newGroup });
                   dockviewApi.addPopoutGroup(newGroup, {
                     position: { width: 800, height: 600, left: 100, top: 100 },
                     popoutUrl: '/assets/popout.html',
@@ -115,7 +118,7 @@ export class DockviewService {
                 label: 'Close',
                 icon: 'codicon codicon-close',
                 tooltip: 'Close Panel',
-                command: (panelApi: DockviewPanelApi) => {
+                command: (panelApi: IDockviewPanel) => {
                   const panel = this.dockviewApi.getPanel(panelApi.id);
                   if (panel) {
                     this.dockviewApi.removePanel(panel);
@@ -205,10 +208,15 @@ export class DockviewService {
     );
 
     // wrap commands to ensure dockviewApi is available
+    const dockviewApiRef = this.dockviewApi; // explicitly capture reference
     const actionsWithDockviewApi = headerActions.map((action) => ({
-      ...action,
-      command: (panelApi: DockviewPanelApi) =>
-        action.command(panelApi, this.dockviewApi),
+      id: action.id,
+      label: action.label,
+      icon: action.icon,
+      tooltip: action.tooltip,
+      command: (panelApi: IDockviewPanel) => {
+        action.command(panelApi, dockviewApiRef);
+      },
     }));
 
     const panel = this.dockviewApi.addPanel({

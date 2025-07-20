@@ -12,7 +12,7 @@ export interface PanelState {
   title: string;
   active: boolean;
   floating: boolean;
-  headerActions?: HeaderAction[]; // ← Add this line
+  headerActions?: HeaderAction[];
 }
 
 @Injectable({ providedIn: 'root' })
