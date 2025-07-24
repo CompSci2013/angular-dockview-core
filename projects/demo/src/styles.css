@@ -26,3 +26,31 @@ dv-dockview,
   height: 100%;
   display: block;
 }
+
+app-plotly-chart,
+app-date-sales-panel,
+app-company-sales-panel,
+app-product-sales-panel {
+  display: block;
+  width: 100%;
+}
+
+.dv-content-container {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.dv-content-container > * {
+  flex: 1 1 auto !important;
+  overflow: hidden;
+}
+
+app-plotly-chart,
+app-date-sales-panel,
+app-company-sales-panel,
+app-product-sales-panel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 5px;
+}
