@@ -1,4 +1,3 @@
-import type { IDockviewPanel } from 'dockview-core';
 import type { HeaderAction } from './services/header-actions.service';
 
 export interface DockviewInputValues {

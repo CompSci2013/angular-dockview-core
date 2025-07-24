@@ -47,27 +47,31 @@ export class DateSalesPanelComponent implements OnInit {
     });
   }
 
-  // onHovered(date: string): void {
-  //   this.eventBus.emit({ type: 'message', toPanelId: 'all', message: date });
-  // }
+  onHovered(date: string): void {
+    this.eventBus.emit({ type: 'message', toPanelId: 'all', message: date });
+  }
 
-  // onClicked(date: string): void {
-  //   this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: date });
-  // }
+  onClicked(date: string): void {
+    this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: date });
+  }
 
-  // onSelected(dates: string[]): void {
-  //   this.eventBus.emit({
-  //     type: 'message',
-  //     toPanelId: 'multi-filter',
-  //     message: dates,
-  //   });
-  // }
+  onSelected(dates: string[]): void {
+    this.eventBus.emit({
+      type: 'message',
+      toPanelId: 'multi-filter',
+      message: JSON.stringify(dates),
+    });
+  }
 
-  // onZoomed(range: [string, string]): void {
-  //   this.eventBus.emit({ type: 'message', toPanelId: 'zoom', message: range });
-  // }
+  onZoomed(range: [string, string]): void {
+    this.eventBus.emit({
+      type: 'message',
+      toPanelId: 'zoom',
+      message: JSON.stringify(range),
+    });
+  }
 
-  // onCleared(): void {
-  //   this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: '' });
-  // }
+  onCleared(): void {
+    this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: '' });
+  }
 }

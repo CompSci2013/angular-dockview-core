@@ -13,7 +13,7 @@ export class RendererRegistryService {
   private panelRenderers = new Map<string, Type<any>>();
 
   constructor() {
-    this.registerTabRenderer('default', DockviewTabRendererComponent);
+    this.registerTabRenderer('angularDefaultTab', DockviewTabRendererComponent);
   }
 
   registerTabRenderer(key: string, component: Type<any>): void {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IDockviewPanel, DockviewApi } from 'dockview-core';
+import { DockviewApi, DockviewPanelApi } from 'dockview-core';
 import { EventBusService } from './event-bus-service';
 
 export interface HeaderAction {
@@ -7,12 +7,13 @@ export interface HeaderAction {
   label: string;
   icon: string;
   tooltip: string;
-  command: (panelApi: IDockviewPanel, dockviewApi?: DockviewApi) => void;
+  command: (panelApi: DockviewPanelApi, dockviewApi?: DockviewApi) => void;
 }
 
 @Injectable({ providedIn: 'root' })
 export class HeaderActionsService {
   private actionsRegistry = new Map<string, HeaderAction[]>();
+
   constructor(private eventBus: EventBusService) {}
 
   private defaultActions: HeaderAction[] = [
@@ -21,11 +22,11 @@ export class HeaderActionsService {
       label: 'Popout',
       icon: 'codicon codicon-browser',
       tooltip: 'Open in Floating Window',
-      command: (panelApi, dockviewApi) => {
+      command: (panelApi: DockviewPanelApi, dockviewApi?: DockviewApi) => {
         if (!dockviewApi) return;
+
         const panelId = panelApi.id;
 
-        // Emit event via EventBusService
         this.eventBus.emit({
           type: 'log',
           message: `Panel "${panelId}" popped out.`,
@@ -37,7 +38,9 @@ export class HeaderActionsService {
           referencePanel: panelApi.id,
           direction: 'right',
         });
-        (panelApi as any).moveTo?.({ group: newGroup });
+
+        panelApi.moveTo({ group: newGroup });
+
         dockviewApi.addPopoutGroup(newGroup, {
           position: { width: 800, height: 600, left: 100, top: 100 },
           popoutUrl: '/popout.html',
@@ -49,11 +52,22 @@ export class HeaderActionsService {
       label: 'Close',
       icon: 'codicon codicon-close',
       tooltip: 'Close Panel',
-      command: (panelApi, dockviewApi) => {
-        if (!dockviewApi) {
-          return;
+      command: (panelApi: DockviewPanelApi, dockviewApi?: DockviewApi) => {
+        if (!dockviewApi) return;
+
+        this.eventBus.emit({
+          type: 'log',
+          message: `Panel "${panelApi.id}" closed.`,
+          source: panelApi.id,
+          timestamp: new Date().toLocaleTimeString(),
+        });
+        const panel = dockviewApi.getPanel(panelApi.id);
+
+        if (panel) {
+          dockviewApi.removePanel(panel);
+        } else {
+          console.warn(`Panel with ID ${panelApi.id} not found.`);
         }
-        dockviewApi.removePanel(panelApi);
       },
     },
   ];

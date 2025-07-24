@@ -9,6 +9,7 @@ import { DateSalesPanelComponent } from './panels/date-sales-panel/date-sales-pa
 import { CompanySalesPanelComponent } from './panels/company-sales-panel/company-sales-panel.component';
 import { ProductSalesPanelComponent } from './panels/product-sales-panel/product-sales-panel.component';
 import { PlotlyChartComponent } from './shared/plotly-chart/plotly-chart.component';
+import { HistogramComponent } from './components/histogram.component';
 
 // ← Import the wrapper library’s module
 import { AngularDockviewModule } from 'angular-dockview';
@@ -20,6 +21,7 @@ import { AngularDockviewModule } from 'angular-dockview';
     CompanySalesPanelComponent,
     ProductSalesPanelComponent,
     PlotlyChartComponent,
+    HistogramComponent,
   ],
   imports: [
     BrowserModule,
