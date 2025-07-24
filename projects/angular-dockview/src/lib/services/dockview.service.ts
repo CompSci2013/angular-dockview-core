@@ -83,7 +83,7 @@ export class DockviewService {
           element: panelElement,
 
           init: (params: GroupPanelPartInitParameters) => {
-            const panelId = params.api?.id ?? '[unknown]';
+            const panelId = params.api.id;
             console.log(
               `[DockviewService] init called for panelId: ${panelId}`
             );
