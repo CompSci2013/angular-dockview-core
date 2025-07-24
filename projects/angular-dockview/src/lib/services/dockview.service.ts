@@ -1,32 +1,31 @@
-/** This service centralizes all interaction with Dockview’s core API.
- *  It makes future testing, state syncing, and extensions (e.g. event dispatching) much easier.
- * */
+/**
+ * This service centralizes all interaction with Dockview’s core API.
+ * It makes future testing, state syncing, and extensions (e.g., event dispatching) much easier.
+ */
 
 import {
   Injectable,
   ApplicationRef,
   EmbeddedViewRef,
   ComponentRef,
+  Injector,
+  ComponentFactoryResolver,
 } from '@angular/core';
-import { ComponentFactoryResolver } from '@angular/core';
-
-import { DockviewComponent } from 'dockview-core';
-import { IContentRenderer } from 'dockview-core/dist/cjs/dockview/types';
-import { PanelStateService, PanelState } from './panel-state.service';
-import { HeaderActionsService, HeaderAction } from './header-actions.service';
-import { RendererRegistryService } from './render-registry.service';
-import { IDockviewPanel } from 'dockview-core';
-import { Injector } from '@angular/core';
 import {
+  DockviewComponent,
+  IContentRenderer,
+  IDockviewPanel,
   CreateComponentOptions,
   ITabRenderer,
   TabPartInitParameters,
-  DockviewPanelApi,
   DockviewApi,
   GroupPanelPartInitParameters,
+  DockviewPanelApi,
 } from 'dockview-core';
+import { PanelStateService, PanelState } from './panel-state.service';
+import { HeaderActionsService, HeaderAction } from './header-actions.service';
+import { RendererRegistryService } from './render-registry.service';
 import { EventBusService } from './event-bus-service';
-import { group } from 'console';
 
 @Injectable({ providedIn: 'root' })
 export class DockviewService {
@@ -51,16 +50,11 @@ export class DockviewService {
       disableAutoResizing: false,
       floatingGroupBounds: 'boundedWithinViewport',
 
-      createComponent: (options: CreateComponentOptions) => {
-        console.log(
-          '[DockviewService] createComponent called for:',
-          options.name
-        );
-
+      createComponent: (options: CreateComponentOptions): IContentRenderer => {
         const componentType = this.rendererRegistry.getPanelRenderer(
           options.name
         );
-        let compnentRef: ComponentRef<any> | null = null;
+
         if (!componentType) {
           console.error(`No renderer found for ${options.name}`);
           return {
@@ -72,7 +66,6 @@ export class DockviewService {
 
         const componentFactory =
           this.componentFactoryResolver.resolveComponentFactory(componentType);
-
         const componentRef = componentFactory.create(this.injector);
         this.injector.get(ApplicationRef).attachView(componentRef.hostView);
 
@@ -82,23 +75,20 @@ export class DockviewService {
         return {
           element: panelElement,
 
-          init: (params: GroupPanelPartInitParameters) => {
-            const panelId = params.api.id;
-            console.log(
-              `[DockviewService] init called for panelId: ${panelId}`
-            );
+          init: (parameters: GroupPanelPartInitParameters) => {
+            const panelId = parameters.api.id;
 
-            const headerActions = [
+            const headerActions: HeaderAction[] = [
               {
                 id: 'popout',
                 label: 'Popout',
                 icon: 'codicon codicon-browser',
                 tooltip: 'Open in Floating Window',
-                command: (panelApi: IDockviewPanel) => {
-                  console.log(
-                    `[DockviewService] Popout clicked for panelId: ${panelId}`
-                  );
-                  const dockviewApi = this.dockviewApi;
+                command: (
+                  panelApi: IDockviewPanel,
+                  dockviewApi?: DockviewApi
+                ) => {
+                  if (!dockviewApi) return;
                   const newGroup = dockviewApi.addGroup({
                     referencePanel: panelApi.id,
                     direction: 'right',
@@ -115,26 +105,25 @@ export class DockviewService {
                 label: 'Close',
                 icon: 'codicon codicon-close',
                 tooltip: 'Close Panel',
-                command: (panelApi: IDockviewPanel) => {
-                  const panel = this.dockviewApi.getPanel(panelApi.id);
-                  if (panel) {
-                    this.dockviewApi.removePanel(panel);
-                  }
+                command: (
+                  panelApi: IDockviewPanel,
+                  dockviewApi?: DockviewApi
+                ) => {
+                  if (!dockviewApi) return;
+                  dockviewApi.removePanel(panelApi);
                 },
               },
             ];
 
-            params.api.updateParameters({ headerActions });
+            parameters.api.updateParameters({ headerActions });
             this.panelStateService.setPanelActions(panelId, headerActions);
 
-            if (params.params) {
-              Object.assign(componentRef.instance, params.params);
+            if (parameters.params) {
+              Object.assign(componentRef.instance, parameters.params);
             }
           },
 
-          dispose: () => {
-            componentRef.destroy();
-          },
+          dispose: () => componentRef.destroy(),
         };
       },
 
@@ -142,21 +131,15 @@ export class DockviewService {
         const element = document.createElement('div');
         element.classList.add('custom-tab');
 
-        let actionsContainer: HTMLElement;
-        let titleSpan: HTMLElement;
-
         return {
           element,
-
-          init: (parameters: TabPartInitParameters): void => {
-            titleSpan = document.createElement('span');
-            titleSpan.textContent = parameters.title || options.id;
-            titleSpan.classList.add('custom-tab-title');
-            element.appendChild(titleSpan);
-
-            actionsContainer = document.createElement('div');
-            actionsContainer.classList.add('custom-tab-actions');
-            element.appendChild(actionsContainer);
+          init: (parameters: TabPartInitParameters) => {
+            element.innerHTML = `<span class="custom-tab-title">${
+              parameters.title || options.id
+            }</span><div class="custom-tab-actions"></div>`;
+            const actionsContainer = element.querySelector(
+              '.custom-tab-actions'
+            ) as HTMLElement;
 
             const renderActions = (actions: Array<any>) => {
               actionsContainer.innerHTML = '';
@@ -173,17 +156,13 @@ export class DockviewService {
             };
 
             parameters.api.onDidParametersChange((event) => {
-              const actions = event['params']?.['headerActions'] || [];
-              renderActions(actions);
+              renderActions(event['params']?.['headerActions'] || []);
             });
 
-            const initialActions = parameters.params?.['headerActions'] || [];
-            renderActions(initialActions);
+            renderActions(parameters['params']?.['headerActions'] || []);
           },
 
-          dispose: () => {
-            element.remove();
-          },
+          dispose: () => element.remove(),
         };
       },
     });
@@ -193,50 +172,32 @@ export class DockviewService {
   }
 
   dispose(): void {
-    this.dockviewComponent?.dispose();
+    this.dockviewComponent.dispose();
   }
 
   addPanel(config: any): void {
     const headerActions = this.headerActionsService.getActions(
       config.component
     );
-
-    const dockviewApiRef = this.dockviewApi;
-    const actionsWithDockviewApi = headerActions.map((action) => ({
-      id: action.id,
-      label: action.label,
-      icon: action.icon,
-      tooltip: action.tooltip,
-      command: (panelApi: IDockviewPanel) => {
-        action.command(panelApi, dockviewApiRef);
-      },
-    }));
-
     const panel = this.dockviewApi.addPanel({
       id: config.id,
       title: config.title,
       component: config.component,
       position: config.position,
-      tabComponent: 'default',
-      params: {
-        ...(config.inputs || {}),
-        headerActions: actionsWithDockviewApi,
-      },
+      params: { ...(config.inputs || {}), headerActions },
     });
 
-    const state: PanelState = {
+    this.panelStateService.addPanel({
       id: config.id,
       title: config.title,
       active: true,
       floating: false,
-      headerActions: actionsWithDockviewApi,
-    };
-
-    this.panelStateService.addPanel(state);
+      headerActions,
+    });
   }
 
   focusPanel(id: string): void {
-    this.dockviewApi?.getPanel(id)?.focus();
+    this.dockviewApi.getPanel(id)?.focus();
     this.panelStateService.activatePanel(id);
   }
 }

@@ -2,9 +2,9 @@ import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { DockviewService } from 'angular-dockview';
 import { RendererRegistryService } from 'angular-dockview';
 
-import { DateSalesPanelComponent } from './panels/date-sales-panel.component';
-import { CompanySalesPanelComponent } from './panels/company-sales-panel.component';
-import { ProductSalesPanelComponent } from './panels/product-sales-panel.component';
+import { DateSalesPanelComponent } from './panels/date-sales-panel/date-sales-panel.component';
+import { CompanySalesPanelComponent } from './panels/company-sales-panel/company-sales-panel.component';
+import { ProductSalesPanelComponent } from './panels/product-sales-panel/product-sales-panel.component';
 
 @Component({
   selector: 'app-root',

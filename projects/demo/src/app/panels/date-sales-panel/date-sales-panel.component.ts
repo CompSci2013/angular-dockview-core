@@ -1,42 +1,73 @@
-// Dockview-specific wrapper component
+import { Component, OnInit } from '@angular/core';
+import { DataService, SalesRecord } from '../../services/data.services';
+import { EventBusService } from 'angular-dockview';
+
 @Component({
   selector: 'app-date-sales-panel',
-  template: `
-    <app-histogram
-      [plotData]="data"
-      plotSelector=".histogram-chart"
-      (hovered)="onHovered($event)"
-      (clicked)="onClicked($event)"
-      (selected)="onSelected($event)"
-      (zoomed)="onZoomed($event)"
-      (cleared)="onCleared()"
-    ></app-histogram>
-  `,
+  templateUrl: './date-sales-panel.component.html',
 })
-export class DateSalesPanelComponent {
-  constructor(private eventBus: EventBusService) {}
+export class DateSalesPanelComponent implements OnInit {
+  plotData: any[] = [];
+  plotLayout: any = {};
 
-  onHovered(date: string) {
-    this.eventBus.emit({ type: 'message', toPanelId: 'all', message: date });
-  }
+  constructor(
+    private dataService: DataService,
+    private eventBus: EventBusService
+  ) {}
 
-  onClicked(date: string) {
-    this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: date });
-  }
+  ngOnInit(): void {
+    this.dataService.getSalesData().subscribe((records: SalesRecord[]) => {
+      const aggregated = records.reduce((acc, curr) => {
+        acc[curr.date] =
+          (acc[curr.date] || 0) +
+          curr.red +
+          curr.yellow +
+          curr.white +
+          curr.blue;
+        return acc;
+      }, {} as { [key: string]: number });
 
-  onSelected(dates: string[]) {
-    this.eventBus.emit({
-      type: 'message',
-      toPanelId: 'multi-filter',
-      message: dates,
+      this.plotData = [
+        {
+          x: Object.keys(aggregated),
+          y: Object.values(aggregated),
+          type: 'bar',
+          marker: { color: '#4c78a8' },
+          hoverinfo: 'x+y',
+          hovertemplate: 'Date: %{x}<br>Sales: %{y}<extra></extra>',
+        },
+      ];
+
+      this.plotLayout = {
+        title: 'Sales by Date',
+        xaxis: { title: 'Date' },
+        yaxis: { title: 'Number of Sales' },
+        margin: { t: 40, l: 50, r: 30, b: 60 },
+      };
     });
   }
 
-  onZoomed(range: [string, string]) {
-    this.eventBus.emit({ type: 'message', toPanelId: 'zoom', message: range });
-  }
+  // onHovered(date: string): void {
+  //   this.eventBus.emit({ type: 'message', toPanelId: 'all', message: date });
+  // }
 
-  onCleared() {
-    this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: '' });
-  }
+  // onClicked(date: string): void {
+  //   this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: date });
+  // }
+
+  // onSelected(dates: string[]): void {
+  //   this.eventBus.emit({
+  //     type: 'message',
+  //     toPanelId: 'multi-filter',
+  //     message: dates,
+  //   });
+  // }
+
+  // onZoomed(range: [string, string]): void {
+  //   this.eventBus.emit({ type: 'message', toPanelId: 'zoom', message: range });
+  // }
+
+  // onCleared(): void {
+  //   this.eventBus.emit({ type: 'message', toPanelId: 'filter', message: '' });
+  // }
 }

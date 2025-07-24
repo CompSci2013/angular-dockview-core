@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService, SalesRecord } from '../services/data.services';
+import { DataService, SalesRecord } from '../../services/data.services';
 import { map } from 'rxjs/operators';
 import { EventBusService } from 'angular-dockview';
 import * as Plotly from 'plotly.js-dist-min';
