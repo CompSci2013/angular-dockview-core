@@ -6,7 +6,6 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { HeaderAction } from '../services/header-actions.service';
-import { DockviewPanelApi } from 'dockview-core';
 
 @Component({
   selector: 'adv-tab-renderer',
@@ -22,17 +21,32 @@ import { DockviewPanelApi } from 'dockview-core';
       </button>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Default,
+  styles: [
+    `
+      .dv-tab-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .dv-tab-title-text {
+        font-weight: bold;
+      }
+      .dv-tab-action {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+      }
+    `,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DockviewTabRendererComponent {
   @Input() title!: string;
   @Input() headerActions: HeaderAction[] = [];
-  @Input() panelApi!: DockviewPanelApi;
 
   @Output() actionClicked = new EventEmitter<HeaderAction>();
 
   onActionClick(action: HeaderAction): void {
-    action.command(this.panelApi);
     this.actionClicked.emit(action);
   }
 }
