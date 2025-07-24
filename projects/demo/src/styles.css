@@ -4,12 +4,17 @@ body {
   margin: 0;
   padding: 0;
 }
-.dockview-theme-dracula,
+.dockview-theme-light,
 adv-dockview-container {
   display: block;
   height: 100vh; /* or 100% if parent chain is 100% */
   min-height: 400px; /* for safety during dev */
   width: 100vw;
+}
+
+app-root {
+  display: block;
+  height: 100%;
 }
 
 .viewer,

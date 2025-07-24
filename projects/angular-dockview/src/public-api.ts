@@ -8,3 +8,4 @@ export * from './lib/renderers/dockview-tab-renderer.component';
 export * from './lib/services/header-actions.service';
 export * from './lib/services/event-bus-service';
 export * from './lib/services/render-registry.service';
+export * from './lib/services/dockview.service';
