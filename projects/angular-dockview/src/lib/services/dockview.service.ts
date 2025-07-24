@@ -23,6 +23,7 @@ import {
   TabPartInitParameters,
   DockviewPanelApi,
   DockviewApi,
+  GroupPanelPartInitParameters,
 } from 'dockview-core';
 import { EventBusService } from './event-bus-service';
 import { group } from 'console';
@@ -49,9 +50,6 @@ export class DockviewService {
     this.dockviewComponent = new DockviewComponent(container, {
       disableAutoResizing: false,
       floatingGroupBounds: 'boundedWithinViewport',
-      // UPDATED: createComponent block now injects header actions via Dockview's API with debug logging
-
-      // Existing imports remain unchanged
 
       createComponent: (options: CreateComponentOptions) => {
         console.log(
@@ -84,13 +82,12 @@ export class DockviewService {
         return {
           element: panelElement,
 
-          init: (params: { api: DockviewPanelApi; params?: any }) => {
+          init: (params: GroupPanelPartInitParameters) => {
             const panelId = params.api?.id ?? '[unknown]';
             console.log(
               `[DockviewService] init called for panelId: ${panelId}`
             );
 
-            // Your existing Popout and Close button logic clearly preserved:
             const headerActions = [
               {
                 id: 'popout',
@@ -130,7 +127,6 @@ export class DockviewService {
             params.api.updateParameters({ headerActions });
             this.panelStateService.setPanelActions(panelId, headerActions);
 
-            // Pass panel params directly as inputs to your Angular component
             if (params.params) {
               Object.assign(componentRef.instance, params.params);
             }
@@ -178,11 +174,9 @@ export class DockviewService {
 
             parameters.api.onDidParametersChange((event) => {
               const actions = event['params']?.['headerActions'] || [];
-
               renderActions(actions);
             });
 
-            // Initial rendering of headerActions
             const initialActions = parameters.params?.['headerActions'] || [];
             renderActions(initialActions);
           },
@@ -207,8 +201,7 @@ export class DockviewService {
       config.component
     );
 
-    // wrap commands to ensure dockviewApi is available
-    const dockviewApiRef = this.dockviewApi; // explicitly capture reference
+    const dockviewApiRef = this.dockviewApi;
     const actionsWithDockviewApi = headerActions.map((action) => ({
       id: action.id,
       label: action.label,
