@@ -11,11 +11,15 @@ import * as Plotly from 'plotly.js-dist-min';
 
 @Component({
   selector: 'app-plotly-chart',
-  template: `<div class="plotly-chart" style="width:100%; height:100%;"></div>`,
+  template: `<div class="plotly-chart"></div>`,
   styles: [
     `
       :host {
         display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .plotly-chart {
         width: 100%;
         height: 100%;
       }

@@ -1,18 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef } from '@angular/core';
 import { DataService, SalesRecord } from '../../services/data.services';
 import { EventBusService } from 'angular-dockview';
+import * as Plotly from 'plotly.js-dist-min';
 
 @Component({
   selector: 'app-date-sales-panel',
   templateUrl: './date-sales-panel.component.html',
 })
-export class DateSalesPanelComponent implements OnInit {
+export class DateSalesPanelComponent implements OnInit, AfterViewInit {
   plotData: any[] = [];
   plotLayout: any = {};
 
+  private resizeObserver!: ResizeObserver;
+
   constructor(
     private dataService: DataService,
-    private eventBus: EventBusService
+    private eventBus: EventBusService,
+    private el: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +49,13 @@ export class DateSalesPanelComponent implements OnInit {
         margin: { t: 40, l: 50, r: 30, b: 60 },
       };
     });
+  }
+  ngAfterViewInit(): void {
+    this.resizeObserver = new ResizeObserver(() => {
+      Plotly.Plots.resize(this.el.nativeElement.firstChild);
+    });
+
+    this.resizeObserver.observe(this.el.nativeElement);
   }
 
   onHovered(date: string): void {
