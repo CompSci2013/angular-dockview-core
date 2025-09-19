@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-angular-dev-source
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /home/odin/projects/angular-dockview-core
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - thor
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-angular-dev-source
+  namespace: apps
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: pv-angular-dev-source
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-angular-dev-modules
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /srv/k8s/angular-dev/node_modules
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - thor
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-angular-dev-modules
+  namespace: apps
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  volumeName: pv-angular-dev-modules

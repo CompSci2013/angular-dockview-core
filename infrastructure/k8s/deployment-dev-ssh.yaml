@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angular-dockview-dev
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: angular-dockview-dev
+  template:
+    metadata:
+      labels:
+        app: angular-dockview-dev
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: thor
+      containers:
+      - name: angular-dev
+        image: localhost/angular-dockview:dev-ssh
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 22
+          name: ssh
+        - containerPort: 4200
+          name: angular
+        volumeMounts:
+        - name: source-code
+          mountPath: /app
+      volumes:
+      - name: source-code
+        hostPath:
+          path: /home/odin/projects/angular-dockview-core
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: angular-dockview-dev
+  namespace: apps
+spec:
+  selector:
+    app: angular-dockview-dev
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    nodePort: 30022
+  - name: angular
+    port: 4200
+    targetPort: 4200
+    nodePort: 30200
+  type: NodePort

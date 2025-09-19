@@ -5,7 +5,7 @@ import {
   IContentRenderer,
   DockviewApi,
 } from 'dockview-core';
-import { DockviewContainerComponent } from 'angular-dockview';
+import { DockviewContainerComponent } from '../../../angular-dockview/src/lib/angular-dockview/dockview-container/dockview-container.component';
 
 @Component({
   selector: 'app-root',

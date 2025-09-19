@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angular-dockview-dev
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: angular-dockview-dev
+  template:
+    metadata:
+      labels:
+        app: angular-dockview-dev
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: thor
+      containers:
+      - name: angular-dev
+        image: localhost/angular-dockview:dev
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 4200
+        volumeMounts:
+        - name: source-code
+          mountPath: /app
+        workingDir: /app
+        command: ["/bin/sh"]
+        args: 
+        - "-c"
+        - |
+          if [ ! -d "node_modules" ]; then
+            echo "Installing dependencies..."
+            npm install
+          fi
+          echo "Starting Angular development server..."
+          ng serve --host 0.0.0.0 --poll=2000 --disable-host-check
+      volumes:
+      - name: source-code
+        hostPath:
+          path: /home/odin/projects/angular-dockview-core
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: angular-dockview-dev
+  namespace: apps
+spec:
+  selector:
+    app: angular-dockview-dev
+  ports:
+  - port: 4200
+    targetPort: 4200
+    nodePort: 30200
+  type: NodePort

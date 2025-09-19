@@ -1,0 +1,44 @@
+# Development container for Angular 13 with SSH access
+FROM node:16-alpine
+
+# Install required packages including OpenSSH
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    openssh \
+    bash \
+    sudo
+
+# Install Angular CLI v13.3.11 globally
+RUN npm install -g @angular/cli@13.3.11
+
+# Create odin user (use different UID if 1000 exists)
+RUN adduser -D -s /bin/bash -u 1001 odin && \
+    echo 'odin ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+# Configure SSH - be more explicit with settings
+RUN mkdir /var/run/sshd && \
+    ssh-keygen -A && \
+    echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
+    echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
+    echo "AuthorizedKeysFile /home/odin/.ssh/authorized_keys" >> /etc/ssh/sshd_config && \
+    echo "StrictModes no" >> /etc/ssh/sshd_config
+
+# Setup SSH for odin user
+RUN mkdir -p /home/odin/.ssh && \
+    echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHdoYz6I1Bbqny8LLrZtWuSNBvVQim+pKAnQbOLzXEjh odin@thor (2025-08-18)" > /home/odin/.ssh/authorized_keys && \
+    chmod 700 /home/odin/.ssh && \
+    chmod 600 /home/odin/.ssh/authorized_keys && \
+    chown -R odin:odin /home/odin
+
+# Set working directory and ownership
+WORKDIR /app
+RUN chown odin:odin /app
+
+# Expose ports for SSH (22) and ng serve (4200)
+EXPOSE 22 4200
+
+# Start SSH daemon
+CMD ["/usr/sbin/sshd", "-D", "-e"]
