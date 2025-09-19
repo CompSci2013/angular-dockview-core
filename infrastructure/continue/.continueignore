@@ -1,0 +1,29 @@
+# Dependencies and build artifacts
+node_modules/
+dist/
+build/
+.angular/
+coverage/
+*.log
+*.cache
+
+# Environment and config files
+.env*
+.vscode/settings.json
+
+# Docker and Kubernetes generated files
+angular-dockview.tar
+
+# Git
+.git/
+
+# Test coverage
+*.lcov
+.nyc_output/
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
